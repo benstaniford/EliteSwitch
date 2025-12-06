@@ -1,0 +1,210 @@
+name: Build and Release Photonize
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            echo "VERSION=${{ github.event.inputs.version }}" >> $env:GITHUB_OUTPUT
+          } else {
+            $version = "${{ github.ref_name }}"
+            echo "VERSION=$version" >> $env:GITHUB_OUTPUT
+          }
+          $numericVersion = if ("${{ github.event_name }}" -eq "workflow_dispatch") { "${{ github.event.inputs.version }}" } else { "${{ github.ref_name }}" }
+          $numericVersion = $numericVersion -replace '^v', ''
+          echo "NUMERIC_VERSION=$numericVersion" >> $env:GITHUB_OUTPUT
+          echo "Version: $numericVersion"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup WiX Toolset
+        run: |
+          Write-Host "Installing WiX Toolset..."
+          choco install wixtoolset -y --no-progress
+          Write-Host "Refreshing environment..."
+          refreshenv
+          # Add WiX to PATH for this session
+          $env:PATH += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          echo "PATH=$env:PATH" >> $env:GITHUB_ENV
+
+      - name: Update WiX Product Version
+        run: |
+          $version = "${{ steps.version.outputs.NUMERIC_VERSION }}"
+          $wxsPath = "Photonize.Installer/Product.wxs"
+          
+          Write-Host "Updating Product.wxs with version: $version"
+          
+          # Read the current content
+          $content = Get-Content $wxsPath -Raw
+          
+          # Update the version define at the top of the file
+          $content = $content -replace '(?<=<\?define ProductVersion=")[\d\.]*(?=" \?>)', $version
+          
+          # Write back to file
+          Set-Content $wxsPath -Value $content -NoNewline
+          
+          Write-Host "✓ Product.wxs updated"
+          Write-Host "Updated version line:"
+          Get-Content $wxsPath | Select-String "define ProductVersion"
+
+      - name: Restore dependencies
+        run: dotnet restore Photonize/Photonize.csproj
+
+      - name: Build Photonize Application
+        run: dotnet build Photonize/Photonize.csproj -c Release --no-restore
+
+      - name: Publish Photonize Application
+        run: dotnet publish Photonize/Photonize.csproj -c Release -o Photonize/bin/Release/net8.0-windows/publish --no-build
+      - name: Build WiX Installer
+        run: |
+          $env:PATH += ";C:\Program Files (x86)\WiX Toolset v3.11\bin"
+          Write-Host "Building WiX installer..."
+          msbuild Photonize.Installer/Photonize.Installer.wixproj /p:Configuration=Release /p:Platform=x64 /v:normal
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "✗ WiX build failed with exit code: $LASTEXITCODE"
+            exit $LASTEXITCODE
+          }
+          Write-Host "✓ WiX build completed"
+
+      - name: Verify and rename MSI file
+        run: |
+          $version = "${{ steps.version.outputs.NUMERIC_VERSION }}"
+          
+          Write-Host "Looking for MSI files..."
+          Write-Host "Contents of Photonize.Installer directory:"
+          Get-ChildItem Photonize.Installer -Recurse -ErrorAction SilentlyContinue | Where-Object {$_.Extension -eq ".msi"} | Format-Table FullName, Length
+          
+          # Handle MSI file
+          $originalPath = "Photonize.Installer/bin/x64/Release/Photonize.msi"
+          $newFileName = "PhotonizeInstaller-v$version-x64.msi"
+          
+          if (Test-Path $originalPath) {
+            Write-Host "✓ MSI file found: $originalPath"
+            $size = (Get-Item $originalPath).Length
+            Write-Host "✓ MSI size: $([math]::Round($size / 1MB, 2)) MB"
+            
+            # Copy to root with new name
+            Copy-Item -Path $originalPath -Destination $newFileName
+            Write-Host "✓ MSI copied to root directory as: $newFileName"
+          } else {
+            Write-Host "✗ MSI file not found: $originalPath"
+            exit 1
+          }
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $numericVersion = "${{ steps.version.outputs.NUMERIC_VERSION }}"
+
+          Write-Host "Extracting release notes from CHANGELOG.md..."
+
+          # Read CHANGELOG.md
+          if (-not (Test-Path "CHANGELOG.md")) {
+            Write-Host "✗ CHANGELOG.md not found!"
+            exit 1
+          }
+
+          $changelogContent = Get-Content "CHANGELOG.md" -Raw
+
+          # Extract the Unreleased section
+          if ($changelogContent -match '(?s)## \[Unreleased\](.*?)(?=## \[|$)') {
+            $unreleasedSection = $matches[1].Trim()
+            Write-Host "✓ Found Unreleased section"
+          } else {
+            Write-Host "✗ Could not find [Unreleased] section in CHANGELOG.md"
+            exit 1
+          }
+
+          # Build release notes with header and installation instructions
+          $releaseNotes = @"
+          # Photonize $version
+
+          $unreleasedSection
+
+          ## Downloads
+
+          ### Windows Installer
+          - **PhotonizeInstaller-v$numericVersion-x64.msi** - Windows MSI installer (64-bit)
+
+          ## Installation
+          1. Download ``PhotonizeInstaller-v$numericVersion-x64.msi``
+          2. Run the MSI installer
+          3. The application will be installed to Program Files
+          4. Desktop and Start Menu shortcuts will be created
+          5. Right-click context menu integration will be available in Windows Explorer
+
+          ## System Requirements
+
+          - **Operating System**: Windows 10 or later (64-bit)
+          - **.NET Runtime**: .NET 8.0 Runtime (Desktop) - [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
+          - **Disk Space**: ~50 MB
+
+          "@
+
+          Set-Content -Path "release_notes.md" -Value $releaseNotes
+          Write-Host "✓ Release notes generated from CHANGELOG.md"
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          
+          Write-Host "Creating release for tag: $version"
+          
+          # Check if release already exists
+          if (gh release view "$version" 2>$null) {
+            Write-Host "Release $version already exists, will add artifacts to it..."
+          } else {
+            # Create the release
+            Write-Host "Creating GitHub release..."
+            gh release create "$version" --title "Photonize $version" --notes-file "release_notes.md" --latest
+          }
+          
+          Write-Host "✓ GitHub release ready"
+
+      - name: Upload MSI Installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $version = "${{ steps.version.outputs.VERSION }}"
+          $numericVersion = "${{ steps.version.outputs.NUMERIC_VERSION }}"
+          
+          # Upload MSI
+          $msiFile = "PhotonizeInstaller-v$numericVersion-x64.msi"
+          Write-Host "Uploading MSI installer to release..."
+          gh release upload $version $msiFile --clobber
+          Write-Host "✓ MSI installer uploaded successfully"

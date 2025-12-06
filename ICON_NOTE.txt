@@ -1,0 +1,19 @@
+ICON FILE REQUIRED
+==================
+
+This application requires an icon file named "icon.ico" in the project root directory.
+
+You can create one using:
+1. An online ICO converter (convert PNG/JPG to ICO)
+2. Visual Studio's built-in icon editor
+3. Tools like GIMP or IcoFX
+
+The icon should be at least 32x32 pixels, but 256x256 is recommended for better quality at different sizes.
+
+Place the icon.ico file in the root of the project directory (same folder as EliteSwitch.csproj).
+
+For a gaming application like Elite Switch, consider using:
+- A spaceship icon
+- A VR headset icon
+- A toggle/switch icon
+- The Elite Dangerous logo (if permitted)

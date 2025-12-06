@@ -29,18 +29,39 @@ A Windows system tray application for switching between VR and Monitor modes for
 
 ## Building
 
+### Build the Application
+
 ```bash
 dotnet restore
 dotnet build -c Release
 ```
 
+### Build the MSI Installer
+
+Requires WiX Toolset v4:
+```bash
+# Install WiX if not already installed
+dotnet tool install --global wix
+
+# Build the installer
+dotnet build EliteSwitch.Installer/EliteSwitch.Installer.wixproj -c Release
+```
+
+The installer will be created at: `EliteSwitch.Installer/bin/Release/x64/en-US/EliteSwitchSetup.msi`
+
+See `EliteSwitch.Installer/README.md` for detailed installer build instructions.
+
 ## Running
 
+### Direct Execution
 ```bash
 dotnet run
 ```
 
 Or run the compiled executable from `bin/Release/net8.0-windows/EliteSwitch.exe`
+
+### Using the Installer
+Double-click `EliteSwitchSetup.msi` and follow the installation wizard. The application will be installed to `C:\Program Files\EliteSwitch\` with a Start Menu shortcut.
 
 ## Configuration
 

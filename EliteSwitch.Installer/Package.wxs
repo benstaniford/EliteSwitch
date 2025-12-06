@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Elite Switch"
+           Manufacturer="Elite Switch"
+           Version="1.0.0.0"
+           UpgradeCode="A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D"
+           InstallerVersion="500"
+           Compressed="yes"
+           Scope="perMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Request administrator privileges -->
+    <Launch Condition="Privileged" Message="This application requires administrator privileges to install." />
+
+    <!-- Use WixUI_InstallDir dialog set -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <ui:WixUI Id="WixUI_InstallDir" />
+
+    <!-- Standard directories -->
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="EliteSwitch">
+        <Component Id="ApplicationFiles" Bitness="always64">
+          <File Id="EliteSwitch.exe" Source="$(var.EliteSwitch.TargetDir)EliteSwitch.exe" KeyPath="yes">
+            <Shortcut Id="StartMenuShortcut"
+                      Directory="ProgramMenuFolder"
+                      Name="Elite Switch"
+                      Description="Elite Dangerous VR/Monitor Mode Switcher"
+                      WorkingDirectory="INSTALLFOLDER"
+                      Icon="EliteSwitchIcon.exe"
+                      Advertise="yes" />
+          </File>
+
+          <!-- Include all dependencies -->
+          <File Id="EliteSwitch.dll" Source="$(var.EliteSwitch.TargetDir)EliteSwitch.dll" />
+          <File Id="EliteSwitch.deps.json" Source="$(var.EliteSwitch.TargetDir)EliteSwitch.deps.json" />
+          <File Id="EliteSwitch.runtimeconfig.json" Source="$(var.EliteSwitch.TargetDir)EliteSwitch.runtimeconfig.json" />
+          <File Id="icon.ico" Source="$(var.EliteSwitch.TargetDir)icon.ico" />
+
+          <!-- AudioSwitcher dependencies -->
+          <File Id="AudioSwitcher.AudioApi.dll" Source="$(var.EliteSwitch.TargetDir)AudioSwitcher.AudioApi.dll" />
+          <File Id="AudioSwitcher.AudioApi.CoreAudio.dll" Source="$(var.EliteSwitch.TargetDir)AudioSwitcher.AudioApi.CoreAudio.dll" />
+
+          <!-- H.NotifyIcon dependencies -->
+          <File Id="H.NotifyIcon.Wpf.dll" Source="$(var.EliteSwitch.TargetDir)H.NotifyIcon.Wpf.dll" />
+          <File Id="H.NotifyIcon.dll" Source="$(var.EliteSwitch.TargetDir)H.NotifyIcon.dll" />
+        </Component>
+
+        <!-- Registry entry for Run at startup (optional, commented out by default) -->
+        <!--
+        <Component Id="RegistryEntries" Bitness="always64">
+          <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
+            <RegistryValue Name="EliteSwitch" Value="[INSTALLFOLDER]EliteSwitch.exe" Type="string" />
+          </RegistryKey>
+        </Component>
+        -->
+      </Directory>
+    </StandardDirectory>
+
+    <!-- Icon for Add/Remove Programs -->
+    <Icon Id="EliteSwitchIcon.exe" SourceFile="$(var.EliteSwitch.TargetDir)EliteSwitch.exe" />
+    <Property Id="ARPPRODUCTICON" Value="EliteSwitchIcon.exe" />
+
+    <!-- Add/Remove Programs properties -->
+    <Property Id="ARPHELPLINK" Value="https://github.com/yourusername/eliteswitch" />
+    <Property Id="ARPNOREPAIR" Value="yes" Secure="yes" />
+
+    <!-- Feature tree -->
+    <Feature Id="ProductFeature" Title="Elite Switch" Level="1">
+      <ComponentRef Id="ApplicationFiles" />
+      <!-- Uncomment to enable startup: <ComponentRef Id="RegistryEntries" /> -->
+    </Feature>
+  </Package>
+</Wix>

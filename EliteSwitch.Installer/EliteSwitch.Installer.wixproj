@@ -1,0 +1,15 @@
+<Project Sdk="WixToolset.Sdk/4.0.5">
+  <PropertyGroup>
+    <OutputName>EliteSwitchSetup</OutputName>
+    <OutputType>Package</OutputType>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\EliteSwitch.csproj" />
+  </ItemGroup>
+</Project>

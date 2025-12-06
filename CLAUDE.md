@@ -23,9 +23,8 @@ build.cmd       # Windows
 dotnet restore
 dotnet build EliteSwitch.csproj -c Release
 
-# Build MSI installer (requires WiX Toolset v4)
-dotnet tool install --global wix  # One-time setup
-dotnet build EliteSwitch.Installer/EliteSwitch.Installer.wixproj -c Release
+# Build MSI installer (requires WiX Toolset v3.11)
+msbuild EliteSwitch.Installer/EliteSwitch.Installer.wixproj /p:Configuration=Release /p:Platform=x64
 ```
 
 **Build outputs:**
@@ -51,7 +50,7 @@ The project requires an `icon.ico` file in the root directory. If missing, build
 
 Two-project solution:
 1. **EliteSwitch** (.NET 8.0 WPF) - Main application
-2. **EliteSwitch.Installer** (WiX v4) - MSI installer
+2. **EliteSwitch.Installer** (WiX v3.11) - MSI installer
 
 ### Core Components
 
@@ -100,7 +99,7 @@ Two-project solution:
 
 ## WiX Installer Configuration
 
-The installer (`EliteSwitch.Installer/Package.wxs`) uses WiX Toolset v4:
+The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 - Installs to `C:\Program Files\EliteSwitch\`
 - Creates Start Menu shortcut
 - Bundles all NuGet dependencies (H.NotifyIcon, AudioSwitcher, etc.)
@@ -108,9 +107,9 @@ The installer (`EliteSwitch.Installer/Package.wxs`) uses WiX Toolset v4:
 - Supports major upgrades (keep `UpgradeCode` GUID constant)
 - Optional auto-start with Windows (currently commented out - uncomment `RegistryEntries` component to enable)
 
-**Version Management**: Update version in TWO places:
-1. `EliteSwitch.Installer/Package.wxs` - `<Package Version="1.0.0.0" />`
-2. Optionally in `EliteSwitch.csproj` - `<AssemblyVersion>` and `<FileVersion>`
+**Version Management**:
+- Version is automatically updated by the GitHub Actions release workflow
+- Manual updates: Edit `<?define ProductVersion="1.0.0.0" ?>` in `EliteSwitch.Installer/Product.wxs`
 
 ## Important Configuration Details
 
@@ -156,7 +155,8 @@ The application switches to audio device containing "h5" in the name. To customi
 - AudioSwitcher.AudioApi.CoreAudio 4.0.0-alpha5 - CoreAudio implementation
 
 **Installer:**
-- WixToolset.UI.wixext 4.0.5 - WiX UI dialogs
+- WiX Toolset v3.11 - MSI installer framework
+- WixUIExtension - WiX UI dialogs
 
 ## Runtime Requirements
 
@@ -183,7 +183,92 @@ The application switches to audio device containing "h5" in the name. To customi
 2. Change from "h5" to desired device name fragment (case-insensitive partial match)
 
 **Enable Auto-Start with Windows:**
-1. Open `EliteSwitch.Installer/Package.wxs`
-2. Uncomment lines 52-58 (`RegistryEntries` component)
-3. Uncomment line 73 (`ComponentRef` for RegistryEntries)
+1. Open `EliteSwitch.Installer/Product.wxs`
+2. Uncomment the `RegistryEntries` component in the `DirectoryRef` section
+3. Uncomment the corresponding `ComponentRef` in the Features section
 4. Rebuild installer
+
+## Creating Releases
+
+The project uses GitHub Actions for automated releases. The workflow builds the installer and creates GitHub releases with MSI artifacts.
+
+### Release Process
+
+1. **Update CHANGELOG.md**:
+   - Move changes from `[Unreleased]` section to a new version section
+   - Keep the `[Unreleased]` section header for future changes
+   - Example:
+     ```markdown
+     ## [Unreleased]
+
+     ### Added
+     - New feature for next release
+
+     ## [1.0.0] - 2024-12-06
+
+     ### Added
+     - Initial release features
+     ```
+
+2. **Create and Push a Version Tag**:
+   ```bash
+   # Create an annotated tag
+   git tag -a v1.0.0 -m "Release version 1.0.0"
+
+   # Push the tag to trigger the release workflow
+   git push origin v1.0.0
+   ```
+
+3. **Monitor the Workflow**:
+   - Go to the repository's "Actions" tab on GitHub
+   - Watch the "Build and Release Elite Switch" workflow
+   - The workflow will:
+     - Build the .NET application
+     - Build the WiX installer
+     - Update version in Product.wxs automatically
+     - Extract release notes from CHANGELOG.md
+     - Create a GitHub release
+     - Upload the MSI installer
+
+### Manual Release Trigger
+
+You can also trigger a release manually from GitHub:
+
+1. Go to **Actions** → **Build and Release Elite Switch**
+2. Click **Run workflow**
+3. Enter the version (e.g., `v1.0.0`)
+4. Click **Run workflow**
+
+### Version Numbering
+
+- Use semantic versioning: `vMAJOR.MINOR.PATCH` (e.g., `v1.0.0`)
+- The workflow automatically strips the 'v' prefix for MSI versioning
+- MSI filename format: `EliteSwitchInstaller-v1.0.0-x64.msi`
+
+### Release Artifacts
+
+Each release includes:
+- **MSI Installer**: `EliteSwitchInstaller-vX.Y.Z-x64.msi`
+- **Release Notes**: Auto-generated from CHANGELOG.md with installation instructions
+- **System Requirements**: .NET 8.0 Runtime, Windows 10+, Administrator privileges
+
+### CHANGELOG.md Format
+
+The workflow expects this format:
+
+```markdown
+## [Unreleased]
+
+### Added
+- New feature
+
+### Fixed
+- Bug fix
+
+## [1.0.0] - 2024-12-06
+
+### Added
+- Initial feature
+```
+
+The `[Unreleased]` section is extracted and used for release notes when a new version is tagged.

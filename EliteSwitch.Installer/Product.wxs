@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <?define ProductVersion="1.0.0.0" ?>
+  <?define ProductName="Elite Switch" ?>
+  <?define Manufacturer="Elite Switch" ?>
+  <?define UpgradeCode="A1B2C3D4-E5F6-4A5B-8C9D-0E1F2A3B4C5D" ?>
+
+  <Product Id="*"
+           Name="$(var.ProductName)"
+           Language="1033"
+           Version="$(var.ProductVersion)"
+           Manufacturer="$(var.Manufacturer)"
+           UpgradeCode="$(var.UpgradeCode)">
+
+    <Package InstallerVersion="200"
+             Compressed="yes"
+             InstallScope="perMachine"
+             Description="$(var.ProductName) Installer"
+             Comments="Elite Dangerous VR/Monitor Mode Switcher" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Note: .NET 8 Runtime required but not checked during installation -->
+    <!-- Users should install from: https://dotnet.microsoft.com/download/dotnet/8.0 -->
+
+    <!-- Installation directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLFOLDER" Name="EliteSwitch" />
+      </Directory>
+
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Elite Switch"/>
+      </Directory>
+
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <!-- Components -->
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="EliteSwitchExe" Guid="{1A2B3C4D-5E6F-7A8B-9C0D-E1F2A3B4C5D6}">
+        <File Id="EliteSwitchEXE"
+              Source="$(var.EliteSwitch.TargetDir)EliteSwitch.exe"
+              KeyPath="yes"
+              Checksum="yes" />
+        <File Id="EliteSwitchDLL"
+              Source="$(var.EliteSwitch.TargetDir)EliteSwitch.dll" />
+        <File Id="EliteSwitchRuntimeConfigJson"
+              Source="$(var.EliteSwitch.TargetDir)EliteSwitch.runtimeconfig.json" />
+        <File Id="EliteSwitchDepsJsonFile"
+              Source="$(var.EliteSwitch.TargetDir)EliteSwitch.deps.json" />
+        <File Id="IconIco"
+              Source="$(var.EliteSwitch.TargetDir)icon.ico" />
+      </Component>
+
+      <!-- NuGet Dependencies - H.NotifyIcon -->
+      <Component Id="HNotifyIcon" Guid="{2B3C4D5E-6F7A-8B9C-0D1E-F2A3B4C5D6E7}">
+        <File Id="HNotifyIconWpfDll"
+              Source="$(var.EliteSwitch.TargetDir)H.NotifyIcon.Wpf.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="HNotifyIconCore" Guid="{3C4D5E6F-7A8B-9C0D-1E2F-A3B4C5D6E7F8}">
+        <File Id="HNotifyIconDll"
+              Source="$(var.EliteSwitch.TargetDir)H.NotifyIcon.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <!-- NuGet Dependencies - AudioSwitcher -->
+      <Component Id="AudioSwitcherApi" Guid="{4D5E6F7A-8B9C-0D1E-2F3A-B4C5D6E7F8A9}">
+        <File Id="AudioSwitcherAudioApiDll"
+              Source="$(var.EliteSwitch.TargetDir)AudioSwitcher.AudioApi.dll"
+              KeyPath="yes" />
+      </Component>
+
+      <Component Id="AudioSwitcherCoreAudio" Guid="{5E6F7A8B-9C0D-1E2F-3A4B-C5D6E7F8A9B0}">
+        <File Id="AudioSwitcherAudioApiCoreAudioDll"
+              Source="$(var.EliteSwitch.TargetDir)AudioSwitcher.AudioApi.CoreAudio.dll"
+              KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Start Menu Shortcut -->
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="ApplicationShortcut" Guid="{6F7A8B9C-0D1E-2F3A-4B5C-D6E7F8A9B0C1}">
+        <Shortcut Id="ApplicationStartMenuShortcut"
+                  Name="Elite Switch"
+                  Description="Elite Dangerous VR/Monitor Mode Switcher"
+                  Target="[INSTALLFOLDER]EliteSwitch.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFolder Id="CleanUpShortCut" Directory="ApplicationProgramsFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\EliteSwitch"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Desktop Shortcut (Optional) -->
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="{7A8B9C0D-1E2F-3A4B-5C6D-E7F8A9B0C1D2}">
+        <Shortcut Id="DesktopShortcut"
+                  Name="Elite Switch"
+                  Description="Elite Dangerous VR/Monitor Mode Switcher"
+                  Target="[INSTALLFOLDER]EliteSwitch.exe"
+                  WorkingDirectory="INSTALLFOLDER"/>
+        <RemoveFolder Id="CleanUpDesktopShortcut" Directory="DesktopFolder" On="uninstall"/>
+        <RegistryValue Root="HKCU"
+                       Key="Software\EliteSwitch"
+                       Name="desktopShortcut"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes"/>
+      </Component>
+    </DirectoryRef>
+
+    <!-- Registry entry for Run at startup (commented out by default) -->
+    <!--
+    <DirectoryRef Id="TARGETDIR">
+      <Component Id="RegistryEntries" Guid="{8B9C0D1E-2F3A-4B5C-6D7E-F8A9B0C1D2E3}">
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
+          <RegistryValue Name="EliteSwitch" Value="[INSTALLFOLDER]EliteSwitch.exe" Type="string" KeyPath="yes" />
+        </RegistryKey>
+      </Component>
+    </DirectoryRef>
+    -->
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="Elite Switch" Level="1">
+      <ComponentRef Id="EliteSwitchExe" />
+      <ComponentRef Id="HNotifyIcon" />
+      <ComponentRef Id="HNotifyIconCore" />
+      <ComponentRef Id="AudioSwitcherApi" />
+      <ComponentRef Id="AudioSwitcherCoreAudio" />
+      <ComponentRef Id="ApplicationShortcut" />
+    </Feature>
+
+    <Feature Id="DesktopShortcutFeature" Title="Desktop Shortcut" Level="1">
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <!-- Uncomment to enable auto-start with Windows
+    <Feature Id="AutoStartFeature" Title="Start with Windows" Level="1000">
+      <ComponentRef Id="RegistryEntries" />
+    </Feature>
+    -->
+
+    <!-- UI -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+
+    <!-- License -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+
+    <!-- Icons -->
+    <Icon Id="icon.ico" SourceFile="$(var.EliteSwitch.TargetDir)icon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+
+    <!-- Add/Remove Programs -->
+    <Property Id="ARPHELPLINK" Value="https://github.com/yourusername/eliteswitch" />
+  </Product>
+</Wix>

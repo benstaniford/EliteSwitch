@@ -4,7 +4,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x64</Platform>
     <ProductVersion>3.11</ProductVersion>
-    <ProjectGuid>{79292DB9-6136-4A4F-A61A-B32E34B00B79}</ProjectGuid>
+    <ProjectGuid>{87654321-4321-4321-4321-210987654321}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
     <OutputName>EliteSwitchSetup</OutputName>
     <OutputType>Package</OutputType>
@@ -30,7 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EliteSwitch.csproj">
       <Name>EliteSwitch</Name>
-      <Project>{A1B2C3D4-E5F6-7A8B-9C0D-1E2F3A4B5C6D}</Project>
+      <Project>{12345678-1234-1234-1234-123456789012}</Project>
       <Private>True</Private>
       <DoNotHarvest>True</DoNotHarvest>
       <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>

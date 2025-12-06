@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using AudioSwitcher.AudioApi;
 using AudioSwitcher.AudioApi.CoreAudio;
 

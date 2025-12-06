@@ -3,7 +3,8 @@
     "allow": [
       "Bash(chmod:*)",
       "Bash(uuidgen:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

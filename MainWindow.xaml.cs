@@ -213,8 +213,11 @@ public partial class MainWindow : Window
                     try
                     {
                         System.Diagnostics.Debug.WriteLine("Trying to set icon from absolute path...");
-                        var iconUri = new Uri(iconPath, UriKind.Absolute);
-                        TrayIcon.IconSource = iconUri;
+                        var bitmapImage = new System.Windows.Media.Imaging.BitmapImage();
+                        bitmapImage.BeginInit();
+                        bitmapImage.UriSource = new Uri(iconPath, UriKind.Absolute);
+                        bitmapImage.EndInit();
+                        TrayIcon.IconSource = bitmapImage;
                         System.Diagnostics.Debug.WriteLine("Icon set from absolute path successfully");
                     }
                     catch (Exception iconEx)

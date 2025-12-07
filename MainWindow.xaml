@@ -8,9 +8,7 @@
         ResizeMode="NoResize"
         Loaded="Window_Loaded"
         ContentRendered="Window_ContentRendered"
-        WindowState="Minimized"
-        Left="-10000"
-        Top="-10000">
+        Visibility="Hidden">
     <Grid>
         <tb:TaskbarIcon
             x:Name="TrayIcon"

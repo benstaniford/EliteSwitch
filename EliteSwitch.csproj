@@ -16,9 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="icon.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Resource Include="icon.ico" />
   </ItemGroup>
 
 </Project>

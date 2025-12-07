@@ -29,8 +29,8 @@
                         <!-- Dynamic menu items will be added here -->
                     </MenuItem>
                     <Separator/>
-                    <MenuItem Header="Start Tools" Click="StartTools_Click"/>
-                    <MenuItem Header="Stop Tools" Click="StopTools_Click"/>
+                    <MenuItem Header="Start Elite Dangerous" Click="StartTools_Click"/>
+                    <MenuItem Header="Stop" Click="StopTools_Click"/>
                     <Separator/>
                     <MenuItem Header="Edit Config..." Click="EditConfig_Click"/>
                     <Separator/>

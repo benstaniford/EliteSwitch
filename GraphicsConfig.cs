@@ -154,7 +154,7 @@ public class GraphicsConfig
                         "elitedangerous64",
                         "edlaunch",
                         "autohotkeyu64",
-                        "messenger"
+                        "eddiscovery"
                     }
                 },
                 VR = new ModeToolsConfig

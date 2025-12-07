@@ -182,9 +182,10 @@ public partial class MainWindow : Window
                     
                     if (matchingDevice != null)
                     {
-                        // Check if this is the current default device
+                        // Check if THIS specific device is the current default
+                        // by comparing the actual matching device name with the current default
                         bool isDefault = !string.IsNullOrEmpty(currentDefaultDevice) &&
-                                       currentDefaultDevice.Contains(device.Substring, StringComparison.OrdinalIgnoreCase);
+                                       matchingDevice.Equals(currentDefaultDevice, StringComparison.OrdinalIgnoreCase);
                         
                         var menuItem = new MenuItem
                         {
@@ -223,9 +224,10 @@ public partial class MainWindow : Window
                     
                     if (matchingDevice != null)
                     {
-                        // Check if this is the current default device
+                        // Check if THIS specific device is the current default
+                        // by comparing the actual matching device name with the current default
                         bool isDefault = !string.IsNullOrEmpty(currentDefaultDevice) &&
-                                       currentDefaultDevice.Contains(device.Substring, StringComparison.OrdinalIgnoreCase);
+                                       matchingDevice.Equals(currentDefaultDevice, StringComparison.OrdinalIgnoreCase);
                         
                         var menuItem = new MenuItem
                         {

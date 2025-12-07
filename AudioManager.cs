@@ -47,6 +47,34 @@ public class AudioManager
         }
     }
 
+    public string? GetDefaultPlaybackDevice()
+    {
+        try
+        {
+            var defaultDevice = _audioController.DefaultPlaybackDevice;
+            return defaultDevice?.FullName;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to get default playback device: {ex.Message}");
+            return null;
+        }
+    }
+
+    public string? GetDefaultCaptureDevice()
+    {
+        try
+        {
+            var defaultDevice = _audioController.DefaultCaptureDevice;
+            return defaultDevice?.FullName;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to get default capture device: {ex.Message}");
+            return null;
+        }
+    }
+
     public async void SetDefaultPlaybackDevice(string deviceNameFragment)
     {
         try

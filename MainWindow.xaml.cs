@@ -172,6 +172,7 @@ public partial class MainWindow : Window
             try
             {
                 var availablePlaybackDevices = audioManager.GetAvailablePlaybackDevices();
+                var currentDefaultDevice = audioManager.GetDefaultPlaybackDevice();
                 
                 foreach (var device in config.Audio.AudioOut.Devices)
                 {
@@ -181,9 +182,13 @@ public partial class MainWindow : Window
                     
                     if (matchingDevice != null)
                     {
+                        // Check if this is the current default device
+                        bool isDefault = !string.IsNullOrEmpty(currentDefaultDevice) &&
+                                       currentDefaultDevice.Contains(device.Substring, StringComparison.OrdinalIgnoreCase);
+                        
                         var menuItem = new MenuItem
                         {
-                            Header = device.Name,
+                            Header = isDefault ? $"● {device.Name}" : device.Name,
                             Tag = device.Substring
                         };
                         menuItem.Click += AudioOut_Click;
@@ -208,6 +213,7 @@ public partial class MainWindow : Window
             try
             {
                 var availableCaptureDevices = audioManager.GetAvailableCaptureDevices();
+                var currentDefaultDevice = audioManager.GetDefaultCaptureDevice();
                 
                 foreach (var device in config.Audio.Microphone.Devices)
                 {
@@ -217,9 +223,13 @@ public partial class MainWindow : Window
                     
                     if (matchingDevice != null)
                     {
+                        // Check if this is the current default device
+                        bool isDefault = !string.IsNullOrEmpty(currentDefaultDevice) &&
+                                       currentDefaultDevice.Contains(device.Substring, StringComparison.OrdinalIgnoreCase);
+                        
                         var menuItem = new MenuItem
                         {
-                            Header = device.Name,
+                            Header = isDefault ? $"● {device.Name}" : device.Name,
                             Tag = device.Substring
                         };
                         menuItem.Click += Microphone_Click;
@@ -255,6 +265,10 @@ public partial class MainWindow : Window
             {
                 var audioManager = GetAudioManager();
                 audioManager?.SetDefaultPlaybackDevice(substring);
+                
+                // Refresh the menu to update indicators
+                BuildAudioDeviceMenus();
+                
                 TrayIcon.ShowNotification("Elite Switch", $"Switched audio output to {menuItem.Header}");
             }
             catch (Exception ex)
@@ -272,6 +286,10 @@ public partial class MainWindow : Window
             {
                 var audioManager = GetAudioManager();
                 audioManager?.SetDefaultCaptureDevice(substring);
+                
+                // Refresh the menu to update indicators
+                BuildAudioDeviceMenus();
+                
                 TrayIcon.ShowNotification("Elite Switch", $"Switched microphone to {menuItem.Header}");
             }
             catch (Exception ex)
@@ -279,6 +297,18 @@ public partial class MainWindow : Window
                 MessageBox.Show($"Failed to switch microphone: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+    }
+
+    private void AudioOutMenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
+    {
+        // Refresh the menu to show current indicators when opened
+        BuildAudioDeviceMenus();
+    }
+
+    private void MicrophoneMenuItem_SubmenuOpened(object sender, RoutedEventArgs e)
+    {
+        // Refresh the menu to show current indicators when opened
+        BuildAudioDeviceMenus();
     }
 
     private void SwitchAudioForMode(GameMode mode)

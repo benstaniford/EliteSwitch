@@ -95,6 +95,7 @@ Two-project solution:
 **AudioManager.cs**
 - Uses AudioSwitcher.AudioApi to change default Windows audio devices
 - Provides methods to enumerate available playback and capture devices
+- Provides methods to get current default playback and capture devices
 - Matches devices by substring (case-insensitive) from configuration
 - Sets both playback and recording devices, including communications defaults
 - Supports independent control of audio output and microphone devices
@@ -113,6 +114,8 @@ Two-project solution:
   - "Audio Out" submenu for selecting playback devices
   - "Microphone" submenu for selecting capture devices
   - Only devices found on the system (by substring match) appear in menus
+  - Current default device shown with bullet indicator (●)
+  - Indicators refresh when submenu is opened or device is changed
 - "Edit Config..." opens the JSON configuration file in the default system editor
 - Automatically reloads configuration before applying mode changes or starting/stopping tools
 

@@ -24,10 +24,10 @@
                     <MenuItem x:Name="VRModeMenuItem" Header="Switch to VR Mode" Click="SwitchToVR_Click"/>
                     <MenuItem x:Name="MonitorModeMenuItem" Header="Switch to Monitor Mode" Click="SwitchToMonitor_Click"/>
                     <Separator/>
-                    <MenuItem x:Name="AudioOutMenuItem" Header="Audio Out">
+                    <MenuItem x:Name="AudioOutMenuItem" Header="Audio Out" SubmenuOpened="AudioOutMenuItem_SubmenuOpened">
                         <!-- Dynamic menu items will be added here -->
                     </MenuItem>
-                    <MenuItem x:Name="MicrophoneMenuItem" Header="Microphone">
+                    <MenuItem x:Name="MicrophoneMenuItem" Header="Microphone" SubmenuOpened="MicrophoneMenuItem_SubmenuOpened">
                         <!-- Dynamic menu items will be added here -->
                     </MenuItem>
                     <Separator/>

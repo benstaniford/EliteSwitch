@@ -117,8 +117,7 @@
       </Component>
     </DirectoryRef>
 
-    <!-- Registry entry for Run at startup (commented out by default) -->
-    <!--
+    <!-- Registry entry for Run at startup -->
     <DirectoryRef Id="TARGETDIR">
       <Component Id="RegistryEntries" Guid="{8B9C0D1E-2F3A-4B5C-6D7E-F8A9B0C1D2E3}">
         <RegistryKey Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Run">
@@ -126,7 +125,6 @@
         </RegistryKey>
       </Component>
     </DirectoryRef>
-    -->
 
     <!-- Features -->
     <Feature Id="ProductFeature" Title="Elite Switch" Level="1">
@@ -142,11 +140,26 @@
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
-    <!-- Uncomment to enable auto-start with Windows
-    <Feature Id="AutoStartFeature" Title="Start with Windows" Level="1000">
+    <!-- Auto-start with Windows -->
+    <Feature Id="AutoStartFeature" Title="Start with Windows" Level="1">
       <ComponentRef Id="RegistryEntries" />
     </Feature>
-    -->
+
+    <!-- Custom Action to launch app after installation -->
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch Elite Switch" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WixShellExecTarget" Value="[#EliteSwitchEXE]" />
+
+    <CustomAction Id="LaunchApplication"
+                  BinaryKey="WixCA"
+                  DllEntry="WixShellExec"
+                  Impersonate="yes" />
+
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApplication" After="InstallFinalize">
+        WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 and NOT Installed
+      </Custom>
+    </InstallExecuteSequence>
 
     <!-- UI -->
     <UIRef Id="WixUI_InstallDir" />

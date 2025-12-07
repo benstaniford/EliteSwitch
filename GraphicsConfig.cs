@@ -154,6 +154,7 @@ public class GraphicsConfig
                         "elitedangerous64",
                         "edlaunch",
                         "autohotkeyu64",
+                        "voiceattack",
                         "eddiscovery"
                     }
                 },

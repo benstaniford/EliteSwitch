@@ -14,7 +14,8 @@
             x:Name="TrayIcon"
             IconSource="/icons/favicon.ico"
             ToolTipText="Elite Switch"
-            Visibility="Visible">
+            Visibility="Visible"
+            TrayLeftMouseUp="TrayIcon_LeftClick">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem x:Name="ModeMenuItem" Header="Current Mode: Monitor" IsEnabled="False" FontWeight="Bold"/>

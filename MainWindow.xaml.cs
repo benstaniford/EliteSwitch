@@ -485,6 +485,15 @@ public partial class MainWindow : Window
         Application.Current.Shutdown();
     }
 
+    private void TrayIcon_LeftClick(object sender, RoutedEventArgs e)
+    {
+        // Open the context menu on left click
+        if (TrayIcon?.ContextMenu != null)
+        {
+            TrayIcon.ContextMenu.IsOpen = true;
+        }
+    }
+
     private void Window_ContentRendered(object sender, EventArgs e)
     {
         System.Diagnostics.Debug.WriteLine("=== Window_ContentRendered event fired ===");

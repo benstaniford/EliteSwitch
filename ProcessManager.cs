@@ -79,28 +79,7 @@ public class ProcessManager
 
         if (mode == GameMode.VR)
         {
-            // Start Oculus via PowerShell script
-            string startOculusScript = Path.Combine(_home, "dot-files", "games", "Oculus", "StartOculus.ps1");
-            if (File.Exists(startOculusScript))
-            {
-                try
-                {
-                    var psi = new ProcessStartInfo
-                    {
-                        FileName = "powershell.exe",
-                        Arguments = $"-ExecutionPolicy Bypass -File \"{startOculusScript}\"",
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
-                    Process.Start(psi);
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"Failed to start Oculus: {ex.Message}");
-                }
-            }
-
-            // Add VR Streamer
+            // Add VR Streamer for VR mode
             startList.Add(Path.Combine(_programFiles, "Virtual Desktop Streamer", "VirtualDesktop.Streamer.exe"));
         }
 

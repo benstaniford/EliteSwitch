@@ -63,7 +63,7 @@ Two-project solution:
 **ProcessManager.cs**
 - Handles starting and stopping gaming tools
 - **Common tools** (both modes): TrackIR, EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
-- **VR-specific tools**: Oculus (via PowerShell script at `%USERPROFILE%\dot-files\games\Oculus\StartOculus.ps1`), Virtual Desktop Streamer
+- **VR-specific tools**: Virtual Desktop Streamer
 - **Stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer in Monitor mode)
 - Tool paths are hardcoded using Environment.SpecialFolder for portability
 
@@ -87,7 +87,7 @@ Two-project solution:
 
 **Mode-Based Configuration**: All actions are mode-aware (VR vs Monitor):
 - Different XML settings applied to Elite Dangerous configs
-- Different tool sets started (VR includes additional Oculus/VR Streamer)
+- Different tool sets started (VR includes Virtual Desktop Streamer)
 - VR Streamer terminated only in Monitor mode
 
 **Dual Config File Updates**: Both `Settings.xml` and `DisplaySettings.xml` are updated identically to ensure Elite Dangerous respects the changes (game checks both files).
@@ -129,7 +129,6 @@ The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 
 Default paths are user-specific and may need adjustment:
 - AutoHotkey script: `%USERPROFILE%\dot-files\games\AutoHotKey Scripts\EliteDangerous.ahk`
-- Oculus start script: `%USERPROFILE%\dot-files\games\Oculus\StartOculus.ps1`
 
 Standard installation paths:
 - TrackIR: `C:\Program Files (x86)\TrackIR5\TrackIR5.exe`

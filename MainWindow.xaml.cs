@@ -7,8 +7,9 @@ public partial class MainWindow : Window
 {
     private readonly EliteConfigManager _configManager;
     private readonly ProcessManager _processManager;
-    private readonly AudioManager _audioManager;
+    private AudioManager? _audioManager;
     private readonly AppSettings _settings;
+    private bool _audioManagerFailed = false;
 
     public MainWindow()
     {
@@ -24,8 +25,8 @@ public partial class MainWindow : Window
             System.Diagnostics.Debug.WriteLine("MainWindow: Creating ProcessManager...");
             _processManager = new ProcessManager();
 
-            System.Diagnostics.Debug.WriteLine("MainWindow: Creating AudioManager...");
-            _audioManager = new AudioManager();
+            // AudioManager initialization is deferred - will be created on first use
+            System.Diagnostics.Debug.WriteLine("MainWindow: AudioManager will be initialized on first use");
 
             System.Diagnostics.Debug.WriteLine("MainWindow: Loading settings...");
             _settings = AppSettings.Load();
@@ -64,6 +65,38 @@ public partial class MainWindow : Window
         MonitorModeMenuItem.IsEnabled = _settings.CurrentMode != GameMode.Monitor;
     }
 
+    private AudioManager? GetAudioManager()
+    {
+        if (_audioManagerFailed)
+        {
+            return null;
+        }
+
+        if (_audioManager == null)
+        {
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Initializing AudioManager...");
+                _audioManager = new AudioManager();
+                System.Diagnostics.Debug.WriteLine("AudioManager initialized successfully");
+            }
+            catch (Exception ex)
+            {
+                _audioManagerFailed = true;
+                System.Diagnostics.Debug.WriteLine($"Failed to initialize AudioManager: {ex.Message}");
+                MessageBox.Show(
+                    "Audio device switching is not available on this system.\n" +
+                    "This feature requires Windows CoreAudio APIs.\n\n" +
+                    "All other features will work normally.",
+                    "Audio Manager Unavailable",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+
+        return _audioManager;
+    }
+
     private void SwitchToVR_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -72,7 +105,9 @@ public partial class MainWindow : Window
             _settings.Save();
 
             _configManager.ApplyMode(GameMode.VR);
-            _audioManager.SetDefaultAudioDevice("h5");
+
+            var audioManager = GetAudioManager();
+            audioManager?.SetDefaultAudioDevice("h5");
 
             UpdateModeDisplay();
 
@@ -92,7 +127,9 @@ public partial class MainWindow : Window
             _settings.Save();
 
             _configManager.ApplyMode(GameMode.Monitor);
-            _audioManager.SetDefaultAudioDevice("h5");
+
+            var audioManager = GetAudioManager();
+            audioManager?.SetDefaultAudioDevice("h5");
 
             UpdateModeDisplay();
 

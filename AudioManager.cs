@@ -25,6 +25,8 @@ public class AudioManager
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to get playback devices: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Exception type: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             return new List<string>();
         }
     }
@@ -39,6 +41,8 @@ public class AudioManager
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to get capture devices: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Exception type: {ex.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             return new List<string>();
         }
     }

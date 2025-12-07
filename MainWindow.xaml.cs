@@ -60,9 +60,6 @@ public partial class MainWindow : Window
             System.Diagnostics.Debug.WriteLine("MainWindow: Updating mode display...");
             UpdateModeDisplay();
 
-            System.Diagnostics.Debug.WriteLine("MainWindow: Building audio device menus...");
-            BuildAudioDeviceMenus();
-
             System.Diagnostics.Debug.WriteLine("MainWindow: Initialization complete!");
 
             // Additional debugging for the window and tray icon
@@ -72,6 +69,10 @@ public partial class MainWindow : Window
                 System.Diagnostics.Debug.WriteLine($"Window.IsLoaded: {this.IsLoaded}");
                 System.Diagnostics.Debug.WriteLine($"Window.IsVisible: {this.IsVisible}");
                 System.Diagnostics.Debug.WriteLine($"Window.Visibility: {this.Visibility}");
+                
+                // Build audio menus after window is fully loaded to avoid COM threading issues
+                System.Diagnostics.Debug.WriteLine("MainWindow: Building audio device menus...");
+                BuildAudioDeviceMenus();
             };
         }
         catch (ArgumentNullException ex)
@@ -118,17 +119,21 @@ public partial class MainWindow : Window
                 _audioManager = new AudioManager();
                 System.Diagnostics.Debug.WriteLine("AudioManager initialized successfully");
             }
+            catch (ArgumentNullException ex)
+            {
+                _audioManagerFailed = true;
+                System.Diagnostics.Debug.WriteLine($"AudioManager initialization failed with ArgumentNullException: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"This may indicate an issue with a specific audio device on the system.");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                
+                // Don't show message box here - will show when building menus
+            }
             catch (Exception ex)
             {
                 _audioManagerFailed = true;
                 System.Diagnostics.Debug.WriteLine($"Failed to initialize AudioManager: {ex.Message}");
-                MessageBox.Show(
-                    "Audio device switching is not available on this system.\n" +
-                    "This feature requires Windows CoreAudio APIs.\n\n" +
-                    "All other features will work normally.",
-                    "Audio Manager Unavailable",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                System.Diagnostics.Debug.WriteLine($"Exception type: {ex.GetType().Name}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -137,15 +142,34 @@ public partial class MainWindow : Window
 
     private void BuildAudioDeviceMenus()
     {
+        // Must be called on UI thread after window is loaded to avoid COM threading issues
         try
         {
             var config = GraphicsConfig.Load();
             
-            // Build Audio Out submenu
-            AudioOutMenuItem.Items.Clear();
+            // Try to initialize audio manager
             var audioManager = GetAudioManager();
             
-            if (audioManager != null)
+            if (audioManager == null)
+            {
+                System.Diagnostics.Debug.WriteLine("AudioManager unavailable - disabling audio device menus");
+                AudioOutMenuItem.IsEnabled = false;
+                MicrophoneMenuItem.IsEnabled = false;
+                
+                // Show informational message
+                if (_audioManagerFailed)
+                {
+                    TrayIcon.ShowNotification(
+                        "Elite Switch - Audio Unavailable",
+                        "Audio device menus disabled due to system compatibility issue.");
+                }
+                return;
+            }
+            
+            // Build Audio Out submenu
+            AudioOutMenuItem.Items.Clear();
+            
+            try
             {
                 var availablePlaybackDevices = audioManager.GetAvailablePlaybackDevices();
                 
@@ -172,15 +196,16 @@ public partial class MainWindow : Window
                     AudioOutMenuItem.IsEnabled = false;
                 }
             }
-            else
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to enumerate playback devices: {ex.Message}");
                 AudioOutMenuItem.IsEnabled = false;
             }
 
             // Build Microphone submenu
             MicrophoneMenuItem.Items.Clear();
             
-            if (audioManager != null)
+            try
             {
                 var availableCaptureDevices = audioManager.GetAvailableCaptureDevices();
                 
@@ -207,14 +232,16 @@ public partial class MainWindow : Window
                     MicrophoneMenuItem.IsEnabled = false;
                 }
             }
-            else
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Failed to enumerate capture devices: {ex.Message}");
                 MicrophoneMenuItem.IsEnabled = false;
             }
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"Failed to build audio device menus: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Exception details: {ex}");
             AudioOutMenuItem.IsEnabled = false;
             MicrophoneMenuItem.IsEnabled = false;
         }

@@ -13,8 +13,14 @@ public class ToolsConfig
     [JsonPropertyName("vrOnly")]
     public List<string> VROnlyTools { get; set; } = new();
 
+    [JsonPropertyName("monitorOnly")]
+    public List<string> MonitorOnlyTools { get; set; } = new();
+
     [JsonPropertyName("stopAlways")]
     public List<string> StopAlways { get; set; } = new();
+
+    [JsonPropertyName("stopInVrMode")]
+    public List<string> StopInVrMode { get; set; } = new();
 
     [JsonPropertyName("stopInMonitorMode")]
     public List<string> StopInMonitorMode { get; set; } = new();
@@ -70,7 +76,6 @@ public class GraphicsConfig
             {
                 CommonTools = new List<string>
                 {
-                    Path.Combine(programFilesX86, "TrackIR5", "TrackIR5.exe"),
                     Path.Combine(programFilesX86, "Frontier", "EDLaunch", "EDLaunch.exe"),
                     Path.Combine(home, "dot-files", "games", "AutoHotKey Scripts", "EliteDangerous.ahk"),
                     Path.Combine(programFilesX86, "Steam", "steamApps", "common", "VoiceAttack", "VoiceAttack.exe"),
@@ -79,6 +84,10 @@ public class GraphicsConfig
                 VROnlyTools = new List<string>
                 {
                     Path.Combine(programFiles, "Virtual Desktop Streamer", "VirtualDesktop.Streamer.exe")
+                },
+                MonitorOnlyTools = new List<string>
+                {
+                    Path.Combine(programFilesX86, "TrackIR5", "TrackIR5.exe")
                 },
                 StopAlways = new List<string>
                 {
@@ -89,6 +98,9 @@ public class GraphicsConfig
                     "autohotkey",
                     "steam",
                     "messenger"
+                },
+                StopInVrMode = new List<string>
+                {
                 },
                 StopInMonitorMode = new List<string>
                 {

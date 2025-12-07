@@ -71,15 +71,18 @@ Two-project solution:
 - Includes tool configuration:
   - Common tools (both modes)
   - VR-only tools
+  - Monitor-only tools
   - Processes to stop always
-  - Processes to stop in Monitor mode only
+  - Processes to stop when switching to VR mode
+  - Processes to stop when switching to Monitor mode
 
 **ProcessManager.cs**
 - Handles starting and stopping gaming tools based on configuration
 - Loads tool lists from `%USERPROFILE%\dot-files\.eliteswitch.json`
-- **Default common tools** (both modes): TrackIR, EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
+- **Default common tools** (both modes): EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
 - **Default VR-specific tools**: Virtual Desktop Streamer
-- **Default stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer in Monitor mode)
+- **Default Monitor-specific tools**: TrackIR5 (head tracking for monitor gaming)
+- **Default stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer when switching to Monitor)
 - Tool paths use Environment.SpecialFolder for portability in defaults
 - Reloads configuration before each start/stop operation to pick up user edits
 
@@ -176,7 +179,6 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
   },
   "tools": {
     "common": [
-      "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe",
       "C:\\Program Files (x86)\\Frontier\\EDLaunch\\EDLaunch.exe",
       "C:\\Users\\YourName\\dot-files\\games\\AutoHotKey Scripts\\EliteDangerous.ahk",
       "C:\\Program Files (x86)\\Steam\\steamApps\\common\\VoiceAttack\\VoiceAttack.exe",
@@ -184,6 +186,9 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
     ],
     "vrOnly": [
       "C:\\Program Files\\Virtual Desktop Streamer\\VirtualDesktop.Streamer.exe"
+    ],
+    "monitorOnly": [
+      "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe"
     ],
     "stopAlways": [
       "elitedangerous64",
@@ -193,6 +198,8 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
       "autohotkey",
       "steam",
       "messenger"
+    ],
+    "stopInVrMode": [
     ],
     "stopInMonitorMode": [
       "virtualdesktop.streamer"
@@ -204,7 +211,9 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
 **Tool Configuration Notes:**
 - `common`: Full paths to executables to start in both VR and Monitor modes
 - `vrOnly`: Full paths to executables to start only in VR mode
+- `monitorOnly`: Full paths to executables to start only in Monitor mode (e.g., TrackIR for head tracking)
 - `stopAlways`: Process names (lowercase, without .exe) to terminate in both modes
+- `stopInVrMode`: Process names to terminate only when switching to VR mode
 - `stopInMonitorMode`: Process names to terminate only when switching to Monitor mode
 
 ### Tool Paths
@@ -250,8 +259,10 @@ The application switches to audio device containing "h5" in the name. To customi
 3. Add tool paths to the appropriate array:
    - `tools.common` - for tools that run in both modes
    - `tools.vrOnly` - for VR-specific tools
+   - `tools.monitorOnly` - for Monitor-specific tools (e.g., head tracking)
    - `tools.stopAlways` - for process names to always terminate
-   - `tools.stopInMonitorMode` - for processes to terminate only in Monitor mode
+   - `tools.stopInVrMode` - for processes to terminate only when switching to VR
+   - `tools.stopInMonitorMode` - for processes to terminate only when switching to Monitor
 4. Save the file
 5. Changes apply on next tool start/stop operation
 

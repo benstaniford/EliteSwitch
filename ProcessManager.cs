@@ -24,7 +24,11 @@ public class ProcessManager
     {
         var killList = new List<string>(_config.Tools.StopAlways);
 
-        if (mode == GameMode.Monitor)
+        if (mode == GameMode.VR)
+        {
+            killList.AddRange(_config.Tools.StopInVrMode);
+        }
+        else if (mode == GameMode.Monitor)
         {
             killList.AddRange(_config.Tools.StopInMonitorMode);
         }
@@ -64,6 +68,11 @@ public class ProcessManager
         {
             // Add VR-only tools
             startList.AddRange(_config.Tools.VROnlyTools);
+        }
+        else if (mode == GameMode.Monitor)
+        {
+            // Add Monitor-only tools
+            startList.AddRange(_config.Tools.MonitorOnlyTools);
         }
 
         foreach (var executable in startList)

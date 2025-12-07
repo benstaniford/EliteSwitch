@@ -5,6 +5,24 @@ using System.Text.Json.Serialization;
 
 namespace EliteSwitch;
 
+public class AudioDevice
+{
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = "";
+
+    [JsonPropertyName("substring")]
+    public string Substring { get; set; } = "";
+}
+
+public class AudioConfig
+{
+    [JsonPropertyName("audioOut")]
+    public List<AudioDevice> AudioOut { get; set; } = new();
+
+    [JsonPropertyName("microphone")]
+    public List<AudioDevice> Microphone { get; set; } = new();
+}
+
 public class ToolsConfig
 {
     [JsonPropertyName("common")]
@@ -39,6 +57,9 @@ public class GraphicsConfig
 {
     [JsonPropertyName("graphics")]
     public GraphicsSettings Graphics { get; set; } = new();
+
+    [JsonPropertyName("audio")]
+    public AudioConfig Audio { get; set; } = new();
 
     [JsonPropertyName("tools")]
     public ToolsConfig Tools { get; set; } = new();
@@ -79,6 +100,19 @@ public class GraphicsConfig
                     { "DX11_RefreshRateNumerator", "120" },
                     { "DX11_RefreshRateDenominator", "1" },
                     { "PresetName", "Ultra" }
+                }
+            },
+            Audio = new AudioConfig
+            {
+                AudioOut = new List<AudioDevice>
+                {
+                    new AudioDevice { Name = "Speakers (H5)", Substring = "h5" },
+                    new AudioDevice { Name = "Desktop Speakers", Substring = "speakers" }
+                },
+                Microphone = new List<AudioDevice>
+                {
+                    new AudioDevice { Name = "Microphone (H5)", Substring = "h5" },
+                    new AudioDevice { Name = "Desktop Microphone", Substring = "microphone" }
                 }
             },
             Tools = new ToolsConfig

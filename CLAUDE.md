@@ -63,11 +63,17 @@ Two-project solution:
 - Automatically creates JSON config file with default settings when first applying a mode
 
 **GraphicsConfig.cs**
-- JSON-based configuration for graphics settings and process management
+- JSON-based configuration for graphics settings, audio devices, and process management
 - Stores separate settings for VR and Monitor modes
 - Located at `%USERPROFILE%\dot-files\.eliteswitch.json`
 - Provides default settings matching the original hardcoded values
 - Supports customization via "Edit Config..." menu option
+- Includes graphics configuration (nested under "graphics" node):
+  - VR mode settings
+  - Monitor mode settings
+- Includes audio device configuration (nested under "audio" node):
+  - Audio output devices (list with name and substring for matching)
+  - Microphone devices (list with name and substring for matching)
 - Includes tool configuration:
   - Common tools (both modes)
   - VR-only tools
@@ -88,8 +94,10 @@ Two-project solution:
 
 **AudioManager.cs**
 - Uses AudioSwitcher.AudioApi to change default Windows audio devices
-- Currently configured to switch to device containing "h5" in the name
+- Provides methods to enumerate available playback and capture devices
+- Matches devices by substring (case-insensitive) from configuration
 - Sets both playback and recording devices, including communications defaults
+- Supports independent control of audio output and microphone devices
 
 **AppSettings.cs**
 - JSON-based settings persistence at `%APPDATA%\EliteSwitch\settings.json`
@@ -98,9 +106,13 @@ Two-project solution:
 
 **MainWindow.xaml/cs**
 - Hidden WPF window that hosts the system tray icon (H.NotifyIcon.Wpf)
-- Context menu with mode switching, tool management, config editing, and exit options
+- Context menu with mode switching, audio device selection, tool management, config editing, and exit options
 - Shows balloon notifications for user actions
 - Menu items dynamically enable/disable based on current mode
+- Audio device submenus dynamically populated from config:
+  - "Audio Out" submenu for selecting playback devices
+  - "Microphone" submenu for selecting capture devices
+  - Only devices found on the system (by substring match) appear in menus
 - "Edit Config..." opens the JSON configuration file in the default system editor
 - Automatically reloads configuration before applying mode changes or starting/stopping tools
 
@@ -129,6 +141,28 @@ The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 
 ## Important Configuration Details
 
+### Audio Device Configuration
+
+The application now allows selecting audio devices through the tray menu. Audio devices are configured in the JSON file under the "audio" node.
+
+**To customize audio devices:**
+1. Right-click the tray icon
+2. Select "Edit Config..."
+3. Modify the `audio.audioOut` array for playback devices
+4. Modify the `audio.microphone` array for capture devices
+5. Each device requires:
+   - `name`: The display name that appears in the menu
+   - `substring`: A unique substring to match the actual device name (case-insensitive)
+6. Save the file
+7. Restart the application to rebuild the audio device menus
+
+**Default Audio Devices:**
+- Audio Out: "Speakers (H5)" (matches "h5"), "Desktop Speakers" (matches "speakers")
+- Microphone: "Microphone (H5)" (matches "h5"), "Desktop Microphone" (matches "microphone")
+
+**Finding Device Substrings:**
+To find the substring for your audio devices, you can check the device name in Windows Sound settings. The substring should be unique enough to match only the desired device (e.g., "h5", "speakers", "headphones", "microphone").
+
 ### Graphics Settings Configuration
 
 Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.eliteswitch.json`. If this file doesn't exist, the application uses hardcoded defaults and creates the file when you first switch modes.
@@ -136,9 +170,10 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
 **To customize settings:**
 1. Right-click the tray icon
 2. Select "Edit Config..."
-3. Modify the JSON file with your preferred graphics settings and/or tool lists
+3. Modify the JSON file with your preferred graphics settings, audio devices, and/or tool lists
 4. Save the file
-5. Next mode switch or tool start/stop will use your custom settings
+5. Graphics and tools: Changes apply on next mode switch or tool start/stop
+6. Audio devices: Restart the application to rebuild the audio device menus
 
 **Default VR Mode Settings:**
 - ScreenWidth/Height: 3840x2160 (maintains desktop resolution)
@@ -158,24 +193,36 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
 **JSON Configuration Example:**
 ```json
 {
-  "vr": {
-    "ScreenWidth": "3840",
-    "ScreenHeight": "2160",
-    "FullScreen": "0",
-    "StereoscopicMode": "4",
-    "GammaOffset": "0.240000",
-    "DX11_RefreshRateNumerator": "59810",
-    "DX11_RefreshRateDenominator": "1000",
-    "PresetName": "VRUltra"
+  "graphics": {
+    "vr": {
+      "ScreenWidth": "3840",
+      "ScreenHeight": "2160",
+      "FullScreen": "0",
+      "StereoscopicMode": "4",
+      "GammaOffset": "0.240000",
+      "DX11_RefreshRateNumerator": "59810",
+      "DX11_RefreshRateDenominator": "1000",
+      "PresetName": "VRUltra"
+    },
+    "monitor": {
+      "ScreenWidth": "3840",
+      "ScreenHeight": "2160",
+      "FullScreen": "2",
+      "StereoscopicMode": "0",
+      "DX11_RefreshRateNumerator": "120",
+      "DX11_RefreshRateDenominator": "1",
+      "PresetName": "Ultra"
+    }
   },
-  "monitor": {
-    "ScreenWidth": "3840",
-    "ScreenHeight": "2160",
-    "FullScreen": "2",
-    "StereoscopicMode": "0",
-    "DX11_RefreshRateNumerator": "120",
-    "DX11_RefreshRateDenominator": "1",
-    "PresetName": "Ultra"
+  "audio": {
+    "audioOut": [
+      { "name": "Speakers (H5)", "substring": "h5" },
+      { "name": "Desktop Speakers", "substring": "speakers" }
+    ],
+    "microphone": [
+      { "name": "Microphone (H5)", "substring": "h5" },
+      { "name": "Desktop Microphone", "substring": "microphone" }
+    ]
   },
   "tools": {
     "common": [
@@ -207,6 +254,15 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
   }
 }
 ```
+
+**Audio Configuration Notes:**
+- `audio.audioOut`: List of audio output devices that will appear in the "Audio Out" submenu
+- `audio.microphone`: List of microphone devices that will appear in the "Microphone" submenu
+- Each audio device has:
+  - `name`: Display name shown in the menu
+  - `substring`: Unique substring used to match the actual device name (case-insensitive)
+- Only devices that exist on the system (matched by substring) will appear in the menus
+- The substring should be unique enough to identify the device but doesn't need to be the full name
 
 **Tool Configuration Notes:**
 - `common`: Full paths to executables to start in both VR and Monitor modes
@@ -253,6 +309,19 @@ The application switches to audio device containing "h5" in the name. To customi
 
 ## Customization Scenarios
 
+**Adding Audio Devices:**
+1. Use the "Edit Config..." menu option in the tray icon
+2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
+3. Add devices to the appropriate array:
+   - `audio.audioOut` - for playback/speaker devices
+   - `audio.microphone` - for capture/microphone devices
+4. Each device needs:
+   ```json
+   { "name": "Display Name", "substring": "unique_substring" }
+   ```
+5. Save the file
+6. Restart the application for the new devices to appear in the menu
+
 **Adding New Tools:**
 1. Use the "Edit Config..." menu option in the tray icon
 2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
@@ -277,9 +346,8 @@ Alternatively, you can modify the default settings in `GraphicsConfig.cs` `GetDe
 
 Alternatively, you can modify the default settings in `GraphicsConfig.cs` `GetDefaultConfig()` method, but editing the JSON file is recommended for user customization.
 
-**Changing Audio Device:**
-1. Modify `AudioManager.cs` `SetDefaultAudioDevice()` parameter in `MainWindow.xaml.cs`
-2. Change from "h5" to desired device name fragment (case-insensitive partial match)
+**Changing Audio Devices:**
+Audio devices are now configured through the JSON file rather than hardcoded. See "Adding Audio Devices" above.
 
 **Enable Auto-Start with Windows:**
 1. Open `EliteSwitch.Installer/Product.wxs`

@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace EliteSwitch;
 
@@ -57,6 +59,9 @@ public partial class MainWindow : Window
 
             System.Diagnostics.Debug.WriteLine("MainWindow: Updating mode display...");
             UpdateModeDisplay();
+
+            System.Diagnostics.Debug.WriteLine("MainWindow: Building audio device menus...");
+            BuildAudioDeviceMenus();
 
             System.Diagnostics.Debug.WriteLine("MainWindow: Initialization complete!");
 
@@ -128,6 +133,125 @@ public partial class MainWindow : Window
         }
 
         return _audioManager;
+    }
+
+    private void BuildAudioDeviceMenus()
+    {
+        try
+        {
+            var config = GraphicsConfig.Load();
+            
+            // Build Audio Out submenu
+            AudioOutMenuItem.Items.Clear();
+            var audioManager = GetAudioManager();
+            
+            if (audioManager != null)
+            {
+                var availablePlaybackDevices = audioManager.GetAvailablePlaybackDevices();
+                
+                foreach (var device in config.Audio.AudioOut)
+                {
+                    // Check if this device exists on the system
+                    var matchingDevice = availablePlaybackDevices.FirstOrDefault(d => 
+                        d.Contains(device.Substring, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (matchingDevice != null)
+                    {
+                        var menuItem = new MenuItem
+                        {
+                            Header = device.Name,
+                            Tag = device.Substring
+                        };
+                        menuItem.Click += AudioOut_Click;
+                        AudioOutMenuItem.Items.Add(menuItem);
+                    }
+                }
+                
+                if (AudioOutMenuItem.Items.Count == 0)
+                {
+                    AudioOutMenuItem.IsEnabled = false;
+                }
+            }
+            else
+            {
+                AudioOutMenuItem.IsEnabled = false;
+            }
+
+            // Build Microphone submenu
+            MicrophoneMenuItem.Items.Clear();
+            
+            if (audioManager != null)
+            {
+                var availableCaptureDevices = audioManager.GetAvailableCaptureDevices();
+                
+                foreach (var device in config.Audio.Microphone)
+                {
+                    // Check if this device exists on the system
+                    var matchingDevice = availableCaptureDevices.FirstOrDefault(d => 
+                        d.Contains(device.Substring, StringComparison.OrdinalIgnoreCase));
+                    
+                    if (matchingDevice != null)
+                    {
+                        var menuItem = new MenuItem
+                        {
+                            Header = device.Name,
+                            Tag = device.Substring
+                        };
+                        menuItem.Click += Microphone_Click;
+                        MicrophoneMenuItem.Items.Add(menuItem);
+                    }
+                }
+                
+                if (MicrophoneMenuItem.Items.Count == 0)
+                {
+                    MicrophoneMenuItem.IsEnabled = false;
+                }
+            }
+            else
+            {
+                MicrophoneMenuItem.IsEnabled = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to build audio device menus: {ex.Message}");
+            AudioOutMenuItem.IsEnabled = false;
+            MicrophoneMenuItem.IsEnabled = false;
+        }
+    }
+
+    private void AudioOut_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem menuItem && menuItem.Tag is string substring)
+        {
+            try
+            {
+                var audioManager = GetAudioManager();
+                audioManager?.SetDefaultPlaybackDevice(substring);
+                TrayIcon.ShowNotification("Elite Switch", $"Switched audio output to {menuItem.Header}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to switch audio device: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
+    private void Microphone_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is MenuItem menuItem && menuItem.Tag is string substring)
+        {
+            try
+            {
+                var audioManager = GetAudioManager();
+                audioManager?.SetDefaultCaptureDevice(substring);
+                TrayIcon.ShowNotification("Elite Switch", $"Switched microphone to {menuItem.Header}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to switch microphone: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
     }
 
     private void SwitchToVR_Click(object sender, RoutedEventArgs e)

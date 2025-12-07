@@ -27,7 +27,9 @@
     <!-- Installation directory structure -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
-        <Directory Id="INSTALLFOLDER" Name="EliteSwitch" />
+        <Directory Id="INSTALLFOLDER" Name="EliteSwitch">
+          <Directory Id="IconsFolder" Name="icons" />
+        </Directory>
       </Directory>
 
       <Directory Id="ProgramMenuFolder">
@@ -50,8 +52,6 @@
               Source="$(var.EliteSwitch.TargetDir)EliteSwitch.runtimeconfig.json" />
         <File Id="EliteSwitchDepsJsonFile"
               Source="$(var.EliteSwitch.TargetDir)EliteSwitch.deps.json" />
-        <File Id="IconIco"
-              Source="$(var.EliteSwitch.TargetDir)icon.ico" />
       </Component>
 
       <!-- NuGet Dependencies - H.NotifyIcon -->
@@ -77,6 +77,15 @@
       <Component Id="AudioSwitcherCoreAudio" Guid="{5E6F7A8B-9C0D-1E2F-3A4B-C5D6E7F8A9B0}">
         <File Id="AudioSwitcherAudioApiCoreAudioDll"
               Source="$(var.EliteSwitch.TargetDir)AudioSwitcher.AudioApi.CoreAudio.dll"
+              KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Icons folder component -->
+    <DirectoryRef Id="IconsFolder">
+      <Component Id="IconsComponent" Guid="{9C0D1E2F-3A4B-5C6D-7E8F-A9B0C1D2E3F4}">
+        <File Id="FaviconIco"
+              Source="$(var.EliteSwitch.TargetDir)icons\favicon.ico"
               KeyPath="yes" />
       </Component>
     </DirectoryRef>
@@ -129,6 +138,7 @@
     <!-- Features -->
     <Feature Id="ProductFeature" Title="Elite Switch" Level="1">
       <ComponentRef Id="EliteSwitchExe" />
+      <ComponentRef Id="IconsComponent" />
       <ComponentRef Id="HNotifyIcon" />
       <ComponentRef Id="HNotifyIconCore" />
       <ComponentRef Id="AudioSwitcherApi" />
@@ -169,8 +179,8 @@
     <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
 
     <!-- Icons -->
-    <Icon Id="icon.ico" SourceFile="$(var.EliteSwitch.TargetDir)icon.ico"/>
-    <Property Id="ARPPRODUCTICON" Value="icon.ico" />
+    <Icon Id="favicon.ico" SourceFile="$(var.EliteSwitch.TargetDir)icons\favicon.ico"/>
+    <Property Id="ARPPRODUCTICON" Value="favicon.ico" />
 
     <!-- Add/Remove Programs -->
     <Property Id="ARPHELPLINK" Value="https://github.com/yourusername/eliteswitch" />

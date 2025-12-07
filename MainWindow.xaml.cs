@@ -232,13 +232,13 @@ public partial class MainWindow : Window
                 System.Diagnostics.Debug.WriteLine("Attempting to force icon visibility...");
 
                 // Try setting icon from absolute file path as fallback
-                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icons", "favicon.ico");
                 System.Diagnostics.Debug.WriteLine($"Icon file path: {iconPath}");
                 System.Diagnostics.Debug.WriteLine($"Icon file exists: {System.IO.File.Exists(iconPath)}");
 
                 if (!System.IO.File.Exists(iconPath))
                 {
-                    System.Diagnostics.Debug.WriteLine("WARNING: icon.ico not found in output directory!");
+                    System.Diagnostics.Debug.WriteLine("WARNING: favicon.ico not found in output directory!");
                     MessageBox.Show($"Icon file not found at: {iconPath}\n\nThe tray icon may not display correctly.",
                         "Icon Missing", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }

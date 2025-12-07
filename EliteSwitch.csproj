@@ -5,7 +5,7 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <ApplicationIcon>icons\favicon.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
@@ -16,8 +16,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="icon.ico" />
-    <None Include="icon.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Resource Include="icons\favicon.ico" />
+    <None Include="icons\favicon.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

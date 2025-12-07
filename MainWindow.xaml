@@ -14,7 +14,7 @@
     <Grid>
         <tb:TaskbarIcon
             x:Name="TrayIcon"
-            IconSource="/icon.ico"
+            IconSource="/icons/favicon.ico"
             ToolTipText="Elite Switch"
             Visibility="Visible">
             <tb:TaskbarIcon.ContextMenu>

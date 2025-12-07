@@ -81,6 +81,16 @@ public class ProcessManager
         {
             if (File.Exists(executable))
             {
+                // Extract process name from executable path
+                var processName = Path.GetFileNameWithoutExtension(executable);
+
+                // Check if process is already running
+                if (IsProcessRunning(processName))
+                {
+                    Debug.WriteLine($"Process already running, skipping: {processName}");
+                    continue;
+                }
+
                 try
                 {
                     Process.Start(new ProcessStartInfo
@@ -88,6 +98,7 @@ public class ProcessManager
                         FileName = executable,
                         UseShellExecute = true
                     });
+                    Debug.WriteLine($"Started process: {processName}");
                 }
                 catch (Exception ex)
                 {
@@ -161,6 +172,16 @@ public class ProcessManager
         {
             if (File.Exists(executable))
             {
+                // Extract process name from executable path
+                var processName = Path.GetFileNameWithoutExtension(executable);
+
+                // Check if process is already running
+                if (IsProcessRunning(processName))
+                {
+                    Debug.WriteLine($"Process already running, skipping: {processName}");
+                    continue;
+                }
+
                 try
                 {
                     Process.Start(new ProcessStartInfo
@@ -168,7 +189,7 @@ public class ProcessManager
                         FileName = executable,
                         UseShellExecute = true
                     });
-                    Debug.WriteLine($"Started mode-specific tool: {executable}");
+                    Debug.WriteLine($"Started mode-specific tool: {processName}");
                 }
                 catch (Exception ex)
                 {
@@ -179,6 +200,22 @@ public class ProcessManager
             {
                 Debug.WriteLine($"Executable not found: {executable}");
             }
+        }
+    }
+
+    private bool IsProcessRunning(string processName)
+    {
+        try
+        {
+            var processes = Process.GetProcesses()
+                .Where(p => p.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase));
+
+            return processes.Any();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error checking if process {processName} is running: {ex.Message}");
+            return false; // If we can't check, assume it's not running and try to start it
         }
     }
 }

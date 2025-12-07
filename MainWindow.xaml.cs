@@ -24,6 +24,23 @@ public partial class MainWindow : Window
             if (TrayIcon != null)
             {
                 System.Diagnostics.Debug.WriteLine($"MainWindow: TrayIcon.IconSource = {TrayIcon.IconSource}");
+                System.Diagnostics.Debug.WriteLine($"MainWindow: TrayIcon.ToolTipText = {TrayIcon.ToolTipText}");
+                System.Diagnostics.Debug.WriteLine($"MainWindow: TrayIcon.ContextMenu = {TrayIcon.ContextMenu}");
+
+                // Try to ensure the icon is visible
+                try
+                {
+                    System.Diagnostics.Debug.WriteLine("MainWindow: Attempting to ensure TrayIcon visibility...");
+                    // Force the icon to show by triggering a property change
+                    var currentTooltip = TrayIcon.ToolTipText;
+                    TrayIcon.ToolTipText = currentTooltip + " "; // Trigger update
+                    TrayIcon.ToolTipText = currentTooltip; // Restore
+                    System.Diagnostics.Debug.WriteLine("MainWindow: TrayIcon visibility check complete");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"MainWindow: Error forcing TrayIcon visibility: {ex.Message}");
+                }
             }
 
             System.Diagnostics.Debug.WriteLine("MainWindow: Creating EliteConfigManager...");

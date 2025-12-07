@@ -4,16 +4,19 @@
         xmlns:tb="clr-namespace:H.NotifyIcon;assembly=H.NotifyIcon.Wpf"
         Title="Elite Switch" Height="1" Width="1"
         ShowInTaskbar="False"
-        Visibility="Hidden"
         WindowStyle="None"
         ResizeMode="NoResize"
         Loaded="Window_Loaded"
-        ContentRendered="Window_ContentRendered">
+        ContentRendered="Window_ContentRendered"
+        WindowState="Minimized"
+        Left="-10000"
+        Top="-10000">
     <Grid>
         <tb:TaskbarIcon
             x:Name="TrayIcon"
             IconSource="/icon.ico"
-            ToolTipText="Elite Switch">
+            ToolTipText="Elite Switch"
+            Visibility="Visible">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem x:Name="ModeMenuItem" Header="Current Mode: Monitor" IsEnabled="False" FontWeight="Bold"/>

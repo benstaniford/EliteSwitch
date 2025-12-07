@@ -6,7 +6,8 @@
         ShowInTaskbar="False"
         Visibility="Hidden"
         WindowStyle="None"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded">
     <Grid>
         <tb:TaskbarIcon
             x:Name="TrayIcon"

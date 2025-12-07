@@ -85,10 +85,11 @@ Two-project solution:
 - Loads tool lists from `%USERPROFILE%\dot-files\.eliteswitch.json`
 - Uses new hierarchical structure with common, vr, and monitor sections
 - **Default common tools** (onStart - both modes): EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
-- **Default common processes to stop** (onStop - both modes): Elite Dangerous, EDLaunch, Dropbox, OneDrive, AutoHotkey, Steam, Messenger
+- **Default common processes to stop** (onStop - both modes): Elite Dangerous, EDLaunch, AutoHotkey U64, Messenger
 - **Default VR tools** (onStart): Virtual Desktop Streamer
+- **Default VR processes to stop** (onStop): Virtual Desktop Streamer
 - **Default Monitor tools** (onStart): TrackIR5 (head tracking for monitor gaming)
-- **Default Monitor processes to stop** (onStop): VR Streamer
+- **Default Monitor processes to stop** (onStop): TrackIR5
 - Tool paths use Environment.SpecialFolder for portability in defaults
 - Reloads configuration before each start/stop operation to pick up user edits
 
@@ -161,8 +162,8 @@ The application now allows selecting audio devices through the tray menu. Audio 
 8. Restart the application to rebuild the audio device menus
 
 **Default Audio Devices:**
-- Audio Out: "Speakers (H5)" (matches "h5"), "Desktop Speakers" (matches "speakers")
-- Microphone: "Microphone (H5)" (matches "h5"), "Desktop Microphone" (matches "microphone")
+- Audio Out: "H5 Headphones" (matches "h5 - game"), "Desktop Speakers" (matches "realtek usb audio"), "Oculus Quest 2" (matches "oculus virtual audio")
+- Microphone: "Microphone (H5)" (matches "h5 - chat"), "Virtual Desktop Microphone" (matches "virtual desktop audio")
 - VR Mode Defaults: Both audio out and microphone default to "h5"
 - Monitor Mode Defaults: Both audio out and microphone default to "h5"
 
@@ -223,16 +224,17 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
   "audio": {
     "audioOut": {
       "devices": [
-        { "name": "Speakers (H5)", "substring": "h5" },
-        { "name": "Desktop Speakers", "substring": "speakers" }
+        { "name": "H5 Headphones", "substring": "h5 - game" },
+        { "name": "Desktop Speakers", "substring": "realtek usb audio" },
+        { "name": "Oculus Quest 2", "substring": "oculus virtual audio" }
       ],
       "default-vr": "h5",
       "default-monitor": "h5"
     },
     "microphone": {
       "devices": [
-        { "name": "Microphone (H5)", "substring": "h5" },
-        { "name": "Desktop Microphone", "substring": "microphone" }
+        { "name": "Microphone (H5)", "substring": "h5 - chat" },
+        { "name": "Virtual Desktop Microphone", "substring": "virtual desktop audio" }
       ],
       "default-vr": "h5",
       "default-monitor": "h5"
@@ -249,10 +251,7 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
       "onStop": [
         "elitedangerous64",
         "edlaunch",
-        "dropbox",
-        "onedrive",
-        "autohotkey",
-        "steam",
+        "autohotkeyu64",
         "messenger"
       ]
     },
@@ -261,6 +260,7 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
         "C:\\Program Files\\Virtual Desktop Streamer\\VirtualDesktop.Streamer.exe"
       ],
       "onStop": [
+        "virtualdesktop.streamer"
       ]
     },
     "monitor": {
@@ -268,7 +268,7 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
         "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe"
       ],
       "onStop": [
-        "virtualdesktop.streamer"
+        "trackir5"
       ]
     }
   }

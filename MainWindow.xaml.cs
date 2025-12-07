@@ -19,6 +19,13 @@ public partial class MainWindow : Window
             InitializeComponent();
             System.Diagnostics.Debug.WriteLine("MainWindow: InitializeComponent completed");
 
+            // Check TrayIcon immediately after XAML loads
+            System.Diagnostics.Debug.WriteLine($"MainWindow: TrayIcon null after InitializeComponent? {TrayIcon == null}");
+            if (TrayIcon != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"MainWindow: TrayIcon.IconSource = {TrayIcon.IconSource}");
+            }
+
             System.Diagnostics.Debug.WriteLine("MainWindow: Creating EliteConfigManager...");
             _configManager = new EliteConfigManager();
 
@@ -181,9 +188,20 @@ public partial class MainWindow : Window
         Application.Current.Shutdown();
     }
 
+    private void Window_ContentRendered(object sender, EventArgs e)
+    {
+        System.Diagnostics.Debug.WriteLine("=== Window_ContentRendered event fired ===");
+        CheckTrayIcon();
+    }
+
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
         System.Diagnostics.Debug.WriteLine("=== Window_Loaded event fired ===");
+        CheckTrayIcon();
+    }
+
+    private void CheckTrayIcon()
+    {
         System.Diagnostics.Debug.WriteLine($"TrayIcon is null: {TrayIcon == null}");
 
         if (TrayIcon != null)

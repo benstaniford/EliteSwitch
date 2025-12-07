@@ -7,6 +7,9 @@ public partial class App : Application
 {
     protected override void OnStartup(StartupEventArgs e)
     {
+        System.Diagnostics.Debug.WriteLine("=== APP STARTING ===");
+        System.Diagnostics.Debug.WriteLine($"ShutdownMode: {this.ShutdownMode}");
+
         base.OnStartup(e);
 
         // Catch all unhandled exceptions
@@ -27,6 +30,28 @@ public partial class App : Application
             args.Handled = false;
         };
 
+        this.Activated += (s, args) =>
+        {
+            System.Diagnostics.Debug.WriteLine("App: Activated event");
+        };
+
+        this.Deactivated += (s, args) =>
+        {
+            System.Diagnostics.Debug.WriteLine("App: Deactivated event");
+        };
+
+        this.Exit += (s, args) =>
+        {
+            System.Diagnostics.Debug.WriteLine("App: Exit event");
+        };
+
         System.Diagnostics.Debug.WriteLine("App: OnStartup completed");
+        System.Diagnostics.Debug.WriteLine($"App.Windows.Count: {this.Windows.Count}");
+
+        if (this.Windows.Count > 0)
+        {
+            System.Diagnostics.Debug.WriteLine($"MainWindow type: {this.MainWindow?.GetType().Name}");
+            System.Diagnostics.Debug.WriteLine($"MainWindow.IsLoaded: {this.MainWindow?.IsLoaded}");
+        }
     }
 }

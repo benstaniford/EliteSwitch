@@ -137,6 +137,8 @@ public partial class MainWindow : Window
             _settings.CurrentMode = GameMode.VR;
             _settings.Save();
 
+            // Reload config in case user edited it
+            _configManager.ReloadConfig();
             _configManager.ApplyMode(GameMode.VR);
 
             var audioManager = GetAudioManager();
@@ -159,6 +161,8 @@ public partial class MainWindow : Window
             _settings.CurrentMode = GameMode.Monitor;
             _settings.Save();
 
+            // Reload config in case user edited it
+            _configManager.ReloadConfig();
             _configManager.ApplyMode(GameMode.Monitor);
 
             var audioManager = GetAudioManager();
@@ -197,6 +201,39 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             MessageBox.Show($"Failed to stop tools: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void EditConfig_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            string configPath = GraphicsConfig.GetConfigFilePath();
+
+            // Ensure the config file exists (create with defaults if it doesn't)
+            if (!System.IO.File.Exists(configPath))
+            {
+                var defaultConfig = GraphicsConfig.GetDefaultConfig();
+                defaultConfig.Save();
+                TrayIcon.ShowNotification("Elite Switch", "Created default graphics configuration file");
+            }
+
+            // Open the file with the default JSON editor
+            var psi = new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = configPath,
+                UseShellExecute = true
+            };
+            System.Diagnostics.Process.Start(psi);
+
+            // Show a notification explaining that the app will reload the config
+            TrayIcon.ShowNotification("Elite Switch",
+                "Graphics config opened for editing.\n\nChanges will be applied next time you switch modes.");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to open config file: {ex.Message}",
+                "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 

@@ -59,6 +59,15 @@ Two-project solution:
 - Updates both `Settings.xml` and `DisplaySettings.xml`
 - Switches between VR settings (StereoscopicMode=4, windowed, VR-specific refresh rate) and Monitor settings (FullScreen=2, 120Hz, Ultra preset)
 - Uses LINQ to XML for configuration manipulation
+- Loads graphics settings from `%USERPROFILE%\dot-files\.eliteswitch.json` if present, otherwise uses hardcoded defaults
+- Automatically creates JSON config file with default settings when first applying a mode
+
+**GraphicsConfig.cs**
+- JSON-based graphics settings configuration
+- Stores separate settings for VR and Monitor modes
+- Located at `%USERPROFILE%\dot-files\.eliteswitch.json`
+- Provides default settings matching the original hardcoded values
+- Supports customization via "Edit Graphics Config..." menu option
 
 **ProcessManager.cs**
 - Handles starting and stopping gaming tools
@@ -79,9 +88,11 @@ Two-project solution:
 
 **MainWindow.xaml/cs**
 - Hidden WPF window that hosts the system tray icon (H.NotifyIcon.Wpf)
-- Context menu with mode switching, tool management, and exit options
+- Context menu with mode switching, tool management, config editing, and exit options
 - Shows balloon notifications for user actions
 - Menu items dynamically enable/disable based on current mode
+- "Edit Graphics Config..." opens the JSON configuration file in the default system editor
+- Automatically reloads configuration before applying mode changes
 
 ### Key Design Patterns
 
@@ -108,9 +119,18 @@ The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 
 ## Important Configuration Details
 
-### Elite Dangerous Settings
+### Graphics Settings Configuration
 
-**VR Mode:**
+Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.eliteswitch.json`. If this file doesn't exist, the application uses hardcoded defaults and creates the file when you first switch modes.
+
+**To customize graphics settings:**
+1. Right-click the tray icon
+2. Select "Edit Graphics Config..."
+3. Modify the JSON file with your preferred settings
+4. Save the file
+5. Next mode switch will use your custom settings
+
+**Default VR Mode Settings:**
 - ScreenWidth/Height: 3840x2160 (maintains desktop resolution)
 - FullScreen: 0 (windowed for VR)
 - StereoscopicMode: 4 (VR enabled)
@@ -118,12 +138,37 @@ The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 - RefreshRate: 59.810 Hz (59810/1000)
 - PresetName: "VRUltra"
 
-**Monitor Mode:**
+**Default Monitor Mode Settings:**
 - ScreenWidth/Height: 3840x2160 (4K resolution)
 - FullScreen: 2 (fullscreen borderless)
 - StereoscopicMode: 0 (VR disabled)
 - RefreshRate: 120 Hz (120/1)
 - PresetName: "Ultra"
+
+**JSON Configuration Example:**
+```json
+{
+  "vr": {
+    "ScreenWidth": "3840",
+    "ScreenHeight": "2160",
+    "FullScreen": "0",
+    "StereoscopicMode": "4",
+    "GammaOffset": "0.240000",
+    "DX11_RefreshRateNumerator": "59810",
+    "DX11_RefreshRateDenominator": "1000",
+    "PresetName": "VRUltra"
+  },
+  "monitor": {
+    "ScreenWidth": "3840",
+    "ScreenHeight": "2160",
+    "FullScreen": "2",
+    "StereoscopicMode": "0",
+    "DX11_RefreshRateNumerator": "120",
+    "DX11_RefreshRateDenominator": "1",
+    "PresetName": "Ultra"
+  }
+}
+```
 
 ### Tool Paths
 
@@ -168,9 +213,13 @@ The application switches to audio device containing "h5" in the name. To customi
 3. If tool should be terminated, add process name (lowercase, without .exe) to `StopTools()` `killList`
 
 **Changing Graphics Presets:**
-1. Modify `EliteConfigManager.cs` `GetVRSettings()` or `GetMonitorSettings()` dictionaries
-2. Add/remove XML element names and values as needed
-3. Element names must match Elite Dangerous XML structure exactly
+1. Use the "Edit Graphics Config..." menu option in the tray icon
+2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
+3. Modify the VR or Monitor settings as needed
+4. Element names must match Elite Dangerous XML structure exactly
+5. Changes are applied on the next mode switch
+
+Alternatively, you can modify the default settings in `GraphicsConfig.cs` `GetDefaultConfig()` method, but editing the JSON file is recommended for user customization.
 
 **Changing Audio Device:**
 1. Modify `AudioManager.cs` `SetDefaultAudioDevice()` parameter in `MainWindow.xaml.cs`

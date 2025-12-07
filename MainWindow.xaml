@@ -27,6 +27,8 @@
                     <MenuItem Header="Start Tools" Click="StartTools_Click"/>
                     <MenuItem Header="Stop Tools" Click="StopTools_Click"/>
                     <Separator/>
+                    <MenuItem Header="Edit Graphics Config..." Click="EditConfig_Click"/>
+                    <Separator/>
                     <MenuItem Header="Exit" Click="Exit_Click"/>
                 </ContextMenu>
             </tb:TaskbarIcon.ContextMenu>

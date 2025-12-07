@@ -10,6 +10,7 @@ public class EliteConfigManager
 {
     private readonly string _settingsPath;
     private readonly string _displaySettingsPath;
+    private GraphicsConfig _config;
 
     public EliteConfigManager()
     {
@@ -18,43 +19,25 @@ public class EliteConfigManager
 
         _settingsPath = Path.Combine(frontierDir, "Settings.xml");
         _displaySettingsPath = Path.Combine(frontierDir, "DisplaySettings.xml");
+
+        // Load configuration from file or use defaults
+        _config = GraphicsConfig.Load();
     }
 
     public void ApplyMode(GameMode mode)
     {
-        var settings = mode == GameMode.VR ? GetVRSettings() : GetMonitorSettings();
+        var settings = mode == GameMode.VR ? _config.VRSettings : _config.MonitorSettings;
 
         ApplySettingsToFile(_settingsPath, settings);
         ApplySettingsToFile(_displaySettingsPath, settings);
+
+        // Save the configuration after applying (creates the file with current settings if it doesn't exist)
+        _config.Save();
     }
 
-    private Dictionary<string, string> GetVRSettings()
+    public void ReloadConfig()
     {
-        return new Dictionary<string, string>
-        {
-            { "ScreenWidth", "3840" },
-            { "ScreenHeight", "2160" },
-            { "FullScreen", "0" },
-            { "StereoscopicMode", "4" },
-            { "GammaOffset", "0.240000" },
-            { "DX11_RefreshRateNumerator", "59810" },
-            { "DX11_RefreshRateDenominator", "1000" },
-            { "PresetName", "VRUltra" }
-        };
-    }
-
-    private Dictionary<string, string> GetMonitorSettings()
-    {
-        return new Dictionary<string, string>
-        {
-            { "ScreenWidth", "3840" },
-            { "ScreenHeight", "2160" },
-            { "FullScreen", "2" },
-            { "StereoscopicMode", "0" },
-            { "DX11_RefreshRateNumerator", "120" },
-            { "DX11_RefreshRateDenominator", "1" },
-            { "PresetName", "Ultra" }
-        };
+        _config = GraphicsConfig.Load();
     }
 
     private void ApplySettingsToFile(string filePath, Dictionary<string, string> settings)

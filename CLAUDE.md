@@ -148,17 +148,20 @@ The application now allows selecting audio devices through the tray menu. Audio 
 **To customize audio devices:**
 1. Right-click the tray icon
 2. Select "Edit Config..."
-3. Modify the `audio.audioOut` array for playback devices
-4. Modify the `audio.microphone` array for capture devices
+3. Modify the `audio.audioOut.devices` array for playback devices
+4. Modify the `audio.microphone.devices` array for capture devices
 5. Each device requires:
    - `name`: The display name that appears in the menu
    - `substring`: A unique substring to match the actual device name (case-insensitive)
-6. Save the file
-7. Restart the application to rebuild the audio device menus
+6. Set `default-vr` and `default-monitor` to the substring of the device to auto-switch when changing modes
+7. Save the file
+8. Restart the application to rebuild the audio device menus
 
 **Default Audio Devices:**
 - Audio Out: "Speakers (H5)" (matches "h5"), "Desktop Speakers" (matches "speakers")
 - Microphone: "Microphone (H5)" (matches "h5"), "Desktop Microphone" (matches "microphone")
+- VR Mode Defaults: Both audio out and microphone default to "h5"
+- Monitor Mode Defaults: Both audio out and microphone default to "h5"
 
 **Finding Device Substrings:**
 To find the substring for your audio devices, you can check the device name in Windows Sound settings. The substring should be unique enough to match only the desired device (e.g., "h5", "speakers", "headphones", "microphone").
@@ -215,14 +218,22 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
     }
   },
   "audio": {
-    "audioOut": [
-      { "name": "Speakers (H5)", "substring": "h5" },
-      { "name": "Desktop Speakers", "substring": "speakers" }
-    ],
-    "microphone": [
-      { "name": "Microphone (H5)", "substring": "h5" },
-      { "name": "Desktop Microphone", "substring": "microphone" }
-    ]
+    "audioOut": {
+      "devices": [
+        { "name": "Speakers (H5)", "substring": "h5" },
+        { "name": "Desktop Speakers", "substring": "speakers" }
+      ],
+      "default-vr": "h5",
+      "default-monitor": "h5"
+    },
+    "microphone": {
+      "devices": [
+        { "name": "Microphone (H5)", "substring": "h5" },
+        { "name": "Desktop Microphone", "substring": "microphone" }
+      ],
+      "default-vr": "h5",
+      "default-monitor": "h5"
+    }
   },
   "tools": {
     "common": [
@@ -256,13 +267,20 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
 ```
 
 **Audio Configuration Notes:**
-- `audio.audioOut`: List of audio output devices that will appear in the "Audio Out" submenu
-- `audio.microphone`: List of microphone devices that will appear in the "Microphone" submenu
-- Each audio device has:
+- `audio.audioOut`: Audio output device configuration
+  - `devices`: List of audio output devices that will appear in the "Audio Out" submenu
+  - `default-vr`: Substring of the device to auto-switch to when entering VR mode
+  - `default-monitor`: Substring of the device to auto-switch to when entering Monitor mode
+- `audio.microphone`: Microphone device configuration
+  - `devices`: List of microphone devices that will appear in the "Microphone" submenu
+  - `default-vr`: Substring of the device to auto-switch to when entering VR mode
+  - `default-monitor`: Substring of the device to auto-switch to when entering Monitor mode
+- Each audio device in the `devices` arrays has:
   - `name`: Display name shown in the menu
   - `substring`: Unique substring used to match the actual device name (case-insensitive)
 - Only devices that exist on the system (matched by substring) will appear in the menus
 - The substring should be unique enough to identify the device but doesn't need to be the full name
+- When switching modes, the application automatically switches to the configured default devices
 
 **Tool Configuration Notes:**
 - `common`: Full paths to executables to start in both VR and Monitor modes
@@ -313,14 +331,19 @@ The application switches to audio device containing "h5" in the name. To customi
 1. Use the "Edit Config..." menu option in the tray icon
 2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
 3. Add devices to the appropriate array:
-   - `audio.audioOut` - for playback/speaker devices
-   - `audio.microphone` - for capture/microphone devices
+   - `audio.audioOut.devices` - for playback/speaker devices
+   - `audio.microphone.devices` - for capture/microphone devices
 4. Each device needs:
    ```json
    { "name": "Display Name", "substring": "unique_substring" }
    ```
-5. Save the file
-6. Restart the application for the new devices to appear in the menu
+5. Configure mode-specific defaults:
+   - `audio.audioOut.default-vr` - substring of device for VR mode
+   - `audio.audioOut.default-monitor` - substring of device for Monitor mode
+   - `audio.microphone.default-vr` - substring of device for VR mode
+   - `audio.microphone.default-monitor` - substring of device for Monitor mode
+6. Save the file
+7. Restart the application for the new devices to appear in the menu
 
 **Adding New Tools:**
 1. Use the "Edit Config..." menu option in the tray icon

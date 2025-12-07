@@ -14,13 +14,25 @@ public class AudioDevice
     public string Substring { get; set; } = "";
 }
 
+public class AudioDeviceList
+{
+    [JsonPropertyName("devices")]
+    public List<AudioDevice> Devices { get; set; } = new();
+
+    [JsonPropertyName("default-vr")]
+    public string? DefaultVR { get; set; }
+
+    [JsonPropertyName("default-monitor")]
+    public string? DefaultMonitor { get; set; }
+}
+
 public class AudioConfig
 {
     [JsonPropertyName("audioOut")]
-    public List<AudioDevice> AudioOut { get; set; } = new();
+    public AudioDeviceList AudioOut { get; set; } = new();
 
     [JsonPropertyName("microphone")]
-    public List<AudioDevice> Microphone { get; set; } = new();
+    public AudioDeviceList Microphone { get; set; } = new();
 }
 
 public class ToolsConfig
@@ -104,15 +116,25 @@ public class GraphicsConfig
             },
             Audio = new AudioConfig
             {
-                AudioOut = new List<AudioDevice>
+                AudioOut = new AudioDeviceList
                 {
-                    new AudioDevice { Name = "Speakers (H5)", Substring = "h5" },
-                    new AudioDevice { Name = "Desktop Speakers", Substring = "speakers" }
+                    Devices = new List<AudioDevice>
+                    {
+                        new AudioDevice { Name = "Speakers (H5)", Substring = "h5" },
+                        new AudioDevice { Name = "Desktop Speakers", Substring = "speakers" }
+                    },
+                    DefaultVR = "h5",
+                    DefaultMonitor = "h5"
                 },
-                Microphone = new List<AudioDevice>
+                Microphone = new AudioDeviceList
                 {
-                    new AudioDevice { Name = "Microphone (H5)", Substring = "h5" },
-                    new AudioDevice { Name = "Desktop Microphone", Substring = "microphone" }
+                    Devices = new List<AudioDevice>
+                    {
+                        new AudioDevice { Name = "Microphone (H5)", Substring = "h5" },
+                        new AudioDevice { Name = "Desktop Microphone", Substring = "microphone" }
+                    },
+                    DefaultVR = "h5",
+                    DefaultMonitor = "h5"
                 }
             },
             Tools = new ToolsConfig

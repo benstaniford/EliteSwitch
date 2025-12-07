@@ -173,7 +173,7 @@ public partial class MainWindow : Window
             {
                 var availablePlaybackDevices = audioManager.GetAvailablePlaybackDevices();
                 
-                foreach (var device in config.Audio.AudioOut)
+                foreach (var device in config.Audio.AudioOut.Devices)
                 {
                     // Check if this device exists on the system
                     var matchingDevice = availablePlaybackDevices.FirstOrDefault(d => 
@@ -209,7 +209,7 @@ public partial class MainWindow : Window
             {
                 var availableCaptureDevices = audioManager.GetAvailableCaptureDevices();
                 
-                foreach (var device in config.Audio.Microphone)
+                foreach (var device in config.Audio.Microphone.Devices)
                 {
                     // Check if this device exists on the system
                     var matchingDevice = availableCaptureDevices.FirstOrDefault(d => 
@@ -281,6 +281,40 @@ public partial class MainWindow : Window
         }
     }
 
+    private void SwitchAudioForMode(GameMode mode)
+    {
+        var audioManager = GetAudioManager();
+        if (audioManager == null)
+        {
+            return;
+        }
+
+        try
+        {
+            var config = GraphicsConfig.Load();
+            
+            // Switch audio output device
+            var audioOutDefault = mode == GameMode.VR ? config.Audio.AudioOut.DefaultVR : config.Audio.AudioOut.DefaultMonitor;
+            if (!string.IsNullOrEmpty(audioOutDefault))
+            {
+                audioManager.SetDefaultPlaybackDevice(audioOutDefault);
+                System.Diagnostics.Debug.WriteLine($"Switched audio output to default for {mode} mode: {audioOutDefault}");
+            }
+            
+            // Switch microphone device
+            var micDefault = mode == GameMode.VR ? config.Audio.Microphone.DefaultVR : config.Audio.Microphone.DefaultMonitor;
+            if (!string.IsNullOrEmpty(micDefault))
+            {
+                audioManager.SetDefaultCaptureDevice(micDefault);
+                System.Diagnostics.Debug.WriteLine($"Switched microphone to default for {mode} mode: {micDefault}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Failed to switch audio for mode {mode}: {ex.Message}");
+        }
+    }
+
     private void SwitchToVR_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -292,8 +326,8 @@ public partial class MainWindow : Window
             _configManager.ReloadConfig();
             _configManager.ApplyMode(GameMode.VR);
 
-            var audioManager = GetAudioManager();
-            audioManager?.SetDefaultAudioDevice("h5");
+            // Switch audio devices to VR defaults
+            SwitchAudioForMode(GameMode.VR);
 
             UpdateModeDisplay();
 
@@ -316,8 +350,8 @@ public partial class MainWindow : Window
             _configManager.ReloadConfig();
             _configManager.ApplyMode(GameMode.Monitor);
 
-            var audioManager = GetAudioManager();
-            audioManager?.SetDefaultAudioDevice("h5");
+            // Switch audio devices to Monitor defaults
+            SwitchAudioForMode(GameMode.Monitor);
 
             UpdateModeDisplay();
 

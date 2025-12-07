@@ -35,6 +35,15 @@ public partial class MainWindow : Window
             UpdateModeDisplay();
 
             System.Diagnostics.Debug.WriteLine("MainWindow: Initialization complete!");
+
+            // Additional debugging for the window and tray icon
+            this.Loaded += (s, e) =>
+            {
+                System.Diagnostics.Debug.WriteLine("=== Lambda Loaded Event ===");
+                System.Diagnostics.Debug.WriteLine($"Window.IsLoaded: {this.IsLoaded}");
+                System.Diagnostics.Debug.WriteLine($"Window.IsVisible: {this.IsVisible}");
+                System.Diagnostics.Debug.WriteLine($"Window.Visibility: {this.Visibility}");
+            };
         }
         catch (ArgumentNullException ex)
         {
@@ -174,17 +183,56 @@ public partial class MainWindow : Window
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
     {
-        System.Diagnostics.Debug.WriteLine("Window_Loaded event fired");
+        System.Diagnostics.Debug.WriteLine("=== Window_Loaded event fired ===");
         System.Diagnostics.Debug.WriteLine($"TrayIcon is null: {TrayIcon == null}");
 
         if (TrayIcon != null)
         {
             System.Diagnostics.Debug.WriteLine($"TrayIcon.IconSource: {TrayIcon.IconSource}");
             System.Diagnostics.Debug.WriteLine($"TrayIcon.ToolTipText: {TrayIcon.ToolTipText}");
+
+            // Try to manually show/create the icon
+            try
+            {
+                System.Diagnostics.Debug.WriteLine("Attempting to force icon visibility...");
+
+                // Try setting icon from absolute file path as fallback
+                var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "icon.ico");
+                System.Diagnostics.Debug.WriteLine($"Icon file path: {iconPath}");
+                System.Diagnostics.Debug.WriteLine($"Icon file exists: {System.IO.File.Exists(iconPath)}");
+
+                if (!System.IO.File.Exists(iconPath))
+                {
+                    System.Diagnostics.Debug.WriteLine("WARNING: icon.ico not found in output directory!");
+                    MessageBox.Show($"Icon file not found at: {iconPath}\n\nThe tray icon may not display correctly.",
+                        "Icon Missing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+                else
+                {
+                    // Try setting the icon from the absolute file path
+                    try
+                    {
+                        System.Diagnostics.Debug.WriteLine("Trying to set icon from absolute path...");
+                        var iconUri = new Uri(iconPath, UriKind.Absolute);
+                        TrayIcon.IconSource = iconUri;
+                        System.Diagnostics.Debug.WriteLine("Icon set from absolute path successfully");
+                    }
+                    catch (Exception iconEx)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to set icon from absolute path: {iconEx.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error checking icon: {ex.Message}");
+            }
         }
         else
         {
             System.Diagnostics.Debug.WriteLine("ERROR: TrayIcon is NULL after window loaded!");
+            MessageBox.Show("TrayIcon control failed to initialize!\n\nThis may be a compatibility issue with H.NotifyIcon.Wpf.",
+                "TrayIcon Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }

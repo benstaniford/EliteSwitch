@@ -10,7 +10,7 @@
     <Grid>
         <tb:TaskbarIcon
             x:Name="TrayIcon"
-            IconSource="pack://application:,,,/icon.ico"
+            IconSource="/icon.ico"
             ToolTipText="Elite Switch">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>

@@ -74,21 +74,21 @@ Two-project solution:
 - Includes audio device configuration (nested under "audio" node):
   - Audio output devices (list with name and substring for matching)
   - Microphone devices (list with name and substring for matching)
-- Includes tool configuration:
-  - Common tools (both modes)
-  - VR-only tools
-  - Monitor-only tools
-  - Processes to stop always
-  - Processes to stop when switching to VR mode
-  - Processes to stop when switching to Monitor mode
+- Includes tool configuration with three main sections (common, vr, monitor):
+  - Each section has "onStart" (tools to launch) and "onStop" (processes to terminate)
+  - Common tools run in both modes
+  - VR tools run only in VR mode
+  - Monitor tools run only in Monitor mode
 
 **ProcessManager.cs**
 - Handles starting and stopping gaming tools based on configuration
 - Loads tool lists from `%USERPROFILE%\dot-files\.eliteswitch.json`
-- **Default common tools** (both modes): EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
-- **Default VR-specific tools**: Virtual Desktop Streamer
-- **Default Monitor-specific tools**: TrackIR5 (head tracking for monitor gaming)
-- **Default stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer when switching to Monitor)
+- Uses new hierarchical structure with common, vr, and monitor sections
+- **Default common tools** (onStart - both modes): EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
+- **Default common processes to stop** (onStop - both modes): Elite Dangerous, EDLaunch, Dropbox, OneDrive, AutoHotkey, Steam, Messenger
+- **Default VR tools** (onStart): Virtual Desktop Streamer
+- **Default Monitor tools** (onStart): TrackIR5 (head tracking for monitor gaming)
+- **Default Monitor processes to stop** (onStop): VR Streamer
 - Tool paths use Environment.SpecialFolder for portability in defaults
 - Reloads configuration before each start/stop operation to pick up user edits
 
@@ -239,32 +239,38 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
     }
   },
   "tools": {
-    "common": [
-      "C:\\Program Files (x86)\\Frontier\\EDLaunch\\EDLaunch.exe",
-      "C:\\Users\\YourName\\dot-files\\games\\AutoHotKey Scripts\\EliteDangerous.ahk",
-      "C:\\Program Files (x86)\\Steam\\steamApps\\common\\VoiceAttack\\VoiceAttack.exe",
-      "C:\\Program Files\\EDDiscovery\\EDDiscovery.exe"
-    ],
-    "vrOnly": [
-      "C:\\Program Files\\Virtual Desktop Streamer\\VirtualDesktop.Streamer.exe"
-    ],
-    "monitorOnly": [
-      "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe"
-    ],
-    "stopAlways": [
-      "elitedangerous64",
-      "edlaunch",
-      "dropbox",
-      "onedrive",
-      "autohotkey",
-      "steam",
-      "messenger"
-    ],
-    "stopInVrMode": [
-    ],
-    "stopInMonitorMode": [
-      "virtualdesktop.streamer"
-    ]
+    "common": {
+      "onStart": [
+        "C:\\Program Files (x86)\\Frontier\\EDLaunch\\EDLaunch.exe",
+        "C:\\Users\\YourName\\dot-files\\games\\AutoHotKey Scripts\\EliteDangerous.ahk",
+        "C:\\Program Files (x86)\\Steam\\steamApps\\common\\VoiceAttack\\VoiceAttack.exe",
+        "C:\\Program Files\\EDDiscovery\\EDDiscovery.exe"
+      ],
+      "onStop": [
+        "elitedangerous64",
+        "edlaunch",
+        "dropbox",
+        "onedrive",
+        "autohotkey",
+        "steam",
+        "messenger"
+      ]
+    },
+    "vr": {
+      "onStart": [
+        "C:\\Program Files\\Virtual Desktop Streamer\\VirtualDesktop.Streamer.exe"
+      ],
+      "onStop": [
+      ]
+    },
+    "monitor": {
+      "onStart": [
+        "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe"
+      ],
+      "onStop": [
+        "virtualdesktop.streamer"
+      ]
+    }
   }
 }
 ```
@@ -286,12 +292,15 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
 - When switching modes, the application automatically switches to the configured default devices
 
 **Tool Configuration Notes:**
-- `common`: Full paths to executables to start in both VR and Monitor modes
-- `vrOnly`: Full paths to executables to start only in VR mode
-- `monitorOnly`: Full paths to executables to start only in Monitor mode (e.g., TrackIR for head tracking)
-- `stopAlways`: Process names (lowercase, without .exe) to terminate in both modes
-- `stopInVrMode`: Process names to terminate only when switching to VR mode
-- `stopInMonitorMode`: Process names to terminate only when switching to Monitor mode
+- `tools.common`: Configuration for tools used in both VR and Monitor modes
+  - `onStart`: Full paths to executables to start in both modes
+  - `onStop`: Process names (lowercase, without .exe) to terminate in both modes
+- `tools.vr`: Configuration for VR-specific tools
+  - `onStart`: Full paths to executables to start only in VR mode
+  - `onStop`: Process names to terminate only when in VR mode
+- `tools.monitor`: Configuration for Monitor-specific tools (e.g., TrackIR for head tracking)
+  - `onStart`: Full paths to executables to start only in Monitor mode
+  - `onStop`: Process names to terminate only when in Monitor mode
 
 ### Tool Paths
 
@@ -351,15 +360,16 @@ The application switches to audio device containing "h5" in the name. To customi
 **Adding New Tools:**
 1. Use the "Edit Config..." menu option in the tray icon
 2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
-3. Add tool paths to the appropriate array:
-   - `tools.common` - for tools that run in both modes
-   - `tools.vrOnly` - for VR-specific tools
-   - `tools.monitorOnly` - for Monitor-specific tools (e.g., head tracking)
-   - `tools.stopAlways` - for process names to always terminate
-   - `tools.stopInVrMode` - for processes to terminate only when switching to VR
-   - `tools.stopInMonitorMode` - for processes to terminate only when switching to Monitor
-4. Save the file
-5. Changes apply on next tool start/stop operation
+3. Add tool paths or process names to the appropriate section:
+   - `tools.common.onStart` - executables to start in both modes
+   - `tools.common.onStop` - processes to terminate in both modes
+   - `tools.vr.onStart` - executables to start only in VR mode
+   - `tools.vr.onStop` - processes to terminate only in VR mode
+   - `tools.monitor.onStart` - executables to start only in Monitor mode (e.g., head tracking)
+   - `tools.monitor.onStop` - processes to terminate only in Monitor mode
+4. Note: `onStart` uses full paths to executables, `onStop` uses process names (lowercase, without .exe)
+5. Save the file
+6. Changes apply on next tool start/stop operation
 
 Alternatively, you can modify the default settings in `GraphicsConfig.cs` `GetDefaultConfig()` method, but editing the JSON file is recommended for user customization.
 

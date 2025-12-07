@@ -22,15 +22,17 @@ public class ProcessManager
 
     public void StopTools(GameMode mode)
     {
-        var killList = new List<string>(_config.Tools.StopAlways);
+        // Always stop common tools
+        var killList = new List<string>(_config.Tools.Common.OnStop);
 
+        // Add mode-specific tools to stop
         if (mode == GameMode.VR)
         {
-            killList.AddRange(_config.Tools.StopInVrMode);
+            killList.AddRange(_config.Tools.VR.OnStop);
         }
         else if (mode == GameMode.Monitor)
         {
-            killList.AddRange(_config.Tools.StopInMonitorMode);
+            killList.AddRange(_config.Tools.Monitor.OnStop);
         }
 
         foreach (var processName in killList)
@@ -62,17 +64,17 @@ public class ProcessManager
 
     public void StartTools(GameMode mode)
     {
-        var startList = new List<string>(_config.Tools.CommonTools);
+        // Always start common tools
+        var startList = new List<string>(_config.Tools.Common.OnStart);
 
+        // Add mode-specific tools to start
         if (mode == GameMode.VR)
         {
-            // Add VR-only tools
-            startList.AddRange(_config.Tools.VROnlyTools);
+            startList.AddRange(_config.Tools.VR.OnStart);
         }
         else if (mode == GameMode.Monitor)
         {
-            // Add Monitor-only tools
-            startList.AddRange(_config.Tools.MonitorOnlyTools);
+            startList.AddRange(_config.Tools.Monitor.OnStart);
         }
 
         foreach (var executable in startList)

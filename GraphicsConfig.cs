@@ -35,25 +35,25 @@ public class AudioConfig
     public AudioDeviceList Microphone { get; set; } = new();
 }
 
+public class ModeToolsConfig
+{
+    [JsonPropertyName("onStart")]
+    public List<string> OnStart { get; set; } = new();
+
+    [JsonPropertyName("onStop")]
+    public List<string> OnStop { get; set; } = new();
+}
+
 public class ToolsConfig
 {
     [JsonPropertyName("common")]
-    public List<string> CommonTools { get; set; } = new();
+    public ModeToolsConfig Common { get; set; } = new();
 
-    [JsonPropertyName("vrOnly")]
-    public List<string> VROnlyTools { get; set; } = new();
+    [JsonPropertyName("vr")]
+    public ModeToolsConfig VR { get; set; } = new();
 
-    [JsonPropertyName("monitorOnly")]
-    public List<string> MonitorOnlyTools { get; set; } = new();
-
-    [JsonPropertyName("stopAlways")]
-    public List<string> StopAlways { get; set; } = new();
-
-    [JsonPropertyName("stopInVrMode")]
-    public List<string> StopInVrMode { get; set; } = new();
-
-    [JsonPropertyName("stopInMonitorMode")]
-    public List<string> StopInMonitorMode { get; set; } = new();
+    [JsonPropertyName("monitor")]
+    public ModeToolsConfig Monitor { get; set; } = new();
 }
 
 public class GraphicsSettings
@@ -139,37 +139,46 @@ public class GraphicsConfig
             },
             Tools = new ToolsConfig
             {
-                CommonTools = new List<string>
+                Common = new ModeToolsConfig
                 {
-                    Path.Combine(programFilesX86, "Frontier", "EDLaunch", "EDLaunch.exe"),
-                    Path.Combine(home, "dot-files", "games", "AutoHotKey Scripts", "EliteDangerous.ahk"),
-                    Path.Combine(programFilesX86, "Steam", "steamApps", "common", "VoiceAttack", "VoiceAttack.exe"),
-                    Path.Combine(programFiles, "EDDiscovery", "EDDiscovery.exe")
+                    OnStart = new List<string>
+                    {
+                        Path.Combine(programFilesX86, "Frontier", "EDLaunch", "EDLaunch.exe"),
+                        Path.Combine(home, "dot-files", "games", "AutoHotKey Scripts", "EliteDangerous.ahk"),
+                        Path.Combine(programFilesX86, "Steam", "steamApps", "common", "VoiceAttack", "VoiceAttack.exe"),
+                        Path.Combine(programFiles, "EDDiscovery", "EDDiscovery.exe")
+                    },
+                    OnStop = new List<string>
+                    {
+                        "elitedangerous64",
+                        "edlaunch",
+                        "dropbox",
+                        "onedrive",
+                        "autohotkey",
+                        "steam",
+                        "messenger"
+                    }
                 },
-                VROnlyTools = new List<string>
+                VR = new ModeToolsConfig
                 {
-                    Path.Combine(programFiles, "Virtual Desktop Streamer", "VirtualDesktop.Streamer.exe")
+                    OnStart = new List<string>
+                    {
+                        Path.Combine(programFiles, "Virtual Desktop Streamer", "VirtualDesktop.Streamer.exe")
+                    },
+                    OnStop = new List<string>
+                    {
+                    }
                 },
-                MonitorOnlyTools = new List<string>
+                Monitor = new ModeToolsConfig
                 {
-                    Path.Combine(programFilesX86, "TrackIR5", "TrackIR5.exe")
-                },
-                StopAlways = new List<string>
-                {
-                    "elitedangerous64",
-                    "edlaunch",
-                    "dropbox",
-                    "onedrive",
-                    "autohotkey",
-                    "steam",
-                    "messenger"
-                },
-                StopInVrMode = new List<string>
-                {
-                },
-                StopInMonitorMode = new List<string>
-                {
-                    "virtualdesktop.streamer"
+                    OnStart = new List<string>
+                    {
+                        Path.Combine(programFilesX86, "TrackIR5", "TrackIR5.exe")
+                    },
+                    OnStop = new List<string>
+                    {
+                        "virtualdesktop.streamer"
+                    }
                 }
             }
         };

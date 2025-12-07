@@ -120,8 +120,9 @@ public class GraphicsConfig
                 {
                     Devices = new List<AudioDevice>
                     {
-                        new AudioDevice { Name = "Speakers (H5)", Substring = "h5" },
-                        new AudioDevice { Name = "Desktop Speakers", Substring = "speakers" }
+                        new AudioDevice { Name = "H5 Headphones", Substring = "h5 - game" },
+                        new AudioDevice { Name = "Desktop Speakers", Substring = "realtek usb audio" },
+                        new AudioDevice { Name = "Oculus Quest 2", Substring = "oculus virtual audio" }
                     },
                     DefaultVR = "h5",
                     DefaultMonitor = "h5"
@@ -130,8 +131,8 @@ public class GraphicsConfig
                 {
                     Devices = new List<AudioDevice>
                     {
-                        new AudioDevice { Name = "Microphone (H5)", Substring = "h5" },
-                        new AudioDevice { Name = "Desktop Microphone", Substring = "microphone" }
+                        new AudioDevice { Name = "Microphone (H5)", Substring = "h5 - chat" },
+                        new AudioDevice { Name = "Virtual Desktop Microphone", Substring = "virtual desktop audio" }
                     },
                     DefaultVR = "h5",
                     DefaultMonitor = "h5"
@@ -152,10 +153,7 @@ public class GraphicsConfig
                     {
                         "elitedangerous64",
                         "edlaunch",
-                        "dropbox",
-                        "onedrive",
-                        "autohotkey",
-                        "steam",
+                        "autohotkeyu64",
                         "messenger"
                     }
                 },
@@ -167,6 +165,7 @@ public class GraphicsConfig
                     },
                     OnStop = new List<string>
                     {
+                        "virtualdesktop.streamer"
                     }
                 },
                 Monitor = new ModeToolsConfig
@@ -177,7 +176,7 @@ public class GraphicsConfig
                     },
                     OnStop = new List<string>
                     {
-                        "virtualdesktop.streamer"
+                        "trackir5"
                     }
                 }
             }

@@ -100,4 +100,85 @@ public class ProcessManager
             }
         }
     }
+
+    public void StopModeSpecificTools(GameMode mode)
+    {
+        // Only stop mode-specific tools, not common tools
+        var killList = new List<string>();
+
+        if (mode == GameMode.VR)
+        {
+            killList.AddRange(_config.Tools.VR.OnStop);
+        }
+        else if (mode == GameMode.Monitor)
+        {
+            killList.AddRange(_config.Tools.Monitor.OnStop);
+        }
+
+        foreach (var processName in killList)
+        {
+            try
+            {
+                var processes = Process.GetProcesses()
+                    .Where(p => p.ProcessName.Equals(processName, StringComparison.OrdinalIgnoreCase));
+
+                foreach (var process in processes)
+                {
+                    try
+                    {
+                        process.Kill();
+                        process.WaitForExit(5000);
+                        Debug.WriteLine($"Stopped mode-specific process: {processName}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"Failed to kill process {processName}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error enumerating processes for {processName}: {ex.Message}");
+            }
+        }
+    }
+
+    public void StartModeSpecificTools(GameMode mode)
+    {
+        // Only start mode-specific tools, not common tools
+        var startList = new List<string>();
+
+        if (mode == GameMode.VR)
+        {
+            startList.AddRange(_config.Tools.VR.OnStart);
+        }
+        else if (mode == GameMode.Monitor)
+        {
+            startList.AddRange(_config.Tools.Monitor.OnStart);
+        }
+
+        foreach (var executable in startList)
+        {
+            if (File.Exists(executable))
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = executable,
+                        UseShellExecute = true
+                    });
+                    Debug.WriteLine($"Started mode-specific tool: {executable}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to start {executable}: {ex.Message}");
+                }
+            }
+            else
+            {
+                Debug.WriteLine($"Executable not found: {executable}");
+            }
+        }
+    }
 }

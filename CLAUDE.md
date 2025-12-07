@@ -92,6 +92,7 @@ Two-project solution:
 - **Default Monitor processes to stop** (onStop): TrackIR5
 - Tool paths use Environment.SpecialFolder for portability in defaults
 - Reloads configuration before each start/stop operation to pick up user edits
+- Provides mode-specific methods: `StartModeSpecificTools()` and `StopModeSpecificTools()` for switching between modes without affecting common tools
 
 **AudioManager.cs**
 - Uses AudioSwitcher.AudioApi to change default Windows audio devices
@@ -111,6 +112,7 @@ Two-project solution:
 - Context menu with mode switching, audio device selection, tool management, config editing, and exit options
 - Shows balloon notifications for user actions
 - Menu items dynamically enable/disable based on current mode
+- **Automatic mode-specific tool management**: When switching modes, automatically stops previous mode's tools and starts new mode's tools (leaves common tools running)
 - Audio device submenus dynamically populated from config:
   - "Audio Out" submenu for selecting playback devices
   - "Microphone" submenu for selecting capture devices
@@ -125,7 +127,9 @@ Two-project solution:
 **Mode-Based Configuration**: All actions are mode-aware (VR vs Monitor):
 - Different XML settings applied to Elite Dangerous configs
 - Different tool sets started (VR includes Virtual Desktop Streamer)
-- VR Streamer terminated only in Monitor mode
+- Different audio devices automatically selected
+- **Automatic tool switching**: When switching modes, the previous mode's tools are stopped and the new mode's tools are started (common tools remain running)
+- Mode-specific processes terminated based on mode (e.g., VR Streamer terminated in VR mode, TrackIR terminated in Monitor mode)
 
 **Dual Config File Updates**: Both `Settings.xml` and `DisplaySettings.xml` are updated identically to ensure Elite Dangerous respects the changes (game checks both files).
 

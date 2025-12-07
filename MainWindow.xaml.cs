@@ -351,6 +351,8 @@ public partial class MainWindow : Window
     {
         try
         {
+            var previousMode = _settings.CurrentMode;
+            
             _settings.CurrentMode = GameMode.VR;
             _settings.Save();
 
@@ -360,6 +362,15 @@ public partial class MainWindow : Window
 
             // Switch audio devices to VR defaults
             SwitchAudioForMode(GameMode.VR);
+
+            // Handle mode-specific tool switching
+            _processManager.ReloadConfig();
+            if (previousMode != GameMode.VR)
+            {
+                // Stop the previous mode's tools and start VR tools
+                _processManager.StopModeSpecificTools(previousMode);
+                _processManager.StartModeSpecificTools(GameMode.VR);
+            }
 
             UpdateModeDisplay();
 
@@ -375,6 +386,8 @@ public partial class MainWindow : Window
     {
         try
         {
+            var previousMode = _settings.CurrentMode;
+            
             _settings.CurrentMode = GameMode.Monitor;
             _settings.Save();
 
@@ -384,6 +397,15 @@ public partial class MainWindow : Window
 
             // Switch audio devices to Monitor defaults
             SwitchAudioForMode(GameMode.Monitor);
+
+            // Handle mode-specific tool switching
+            _processManager.ReloadConfig();
+            if (previousMode != GameMode.Monitor)
+            {
+                // Stop the previous mode's tools and start Monitor tools
+                _processManager.StopModeSpecificTools(previousMode);
+                _processManager.StartModeSpecificTools(GameMode.Monitor);
+            }
 
             UpdateModeDisplay();
 

@@ -2,6 +2,8 @@
 
 Elite Switch is a Windows system tray application that makes it easy to switch between VR and Monitor modes for Elite Dangerous. With a simple click, it automatically adjusts your game settings, audio devices, and launches the right tools for your gaming session.
 
+<img width="370" height="379" alt="image" src="https://github.com/user-attachments/assets/ecf832b0-5131-4fbc-8f69-57c64783c1a1" />
+
 ## Features
 
 - **One-Click Mode Switching**: Instantly switch between VR and Monitor modes

@@ -85,11 +85,6 @@ Two-project solution:
 
 ### Key Design Patterns
 
-**Administrator Privileges**: Application requires admin rights (declared in `app.manifest`) to:
-- Kill processes via Process.Kill()
-- Change system default audio devices
-- Install via MSI (installer requirement)
-
 **Mode-Based Configuration**: All actions are mode-aware (VR vs Monitor):
 - Different XML settings applied to Elite Dangerous configs
 - Different tool sets started (VR includes additional Oculus/VR Streamer)

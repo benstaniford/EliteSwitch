@@ -1,130 +1,160 @@
 # Elite Switch
 
-A Windows system tray application for switching between VR and Monitor modes for Elite Dangerous. This replaces the Python `elite-switch` script with a modern C# WPF application.
+Elite Switch is a Windows system tray application that makes it easy to switch between VR and Monitor modes for Elite Dangerous. With a simple click, it automatically adjusts your game settings, audio devices, and launches the right tools for your gaming session.
 
 ## Features
 
-- **Mode Switching**: Toggle between VR and Monitor modes
-  - Automatically updates Elite Dangerous config files (`Settings.xml` and `DisplaySettings.xml`)
-  - Adjusts graphics settings (resolution, fullscreen, stereoscopic mode, refresh rate, preset)
-  - Switches default audio devices to "h5"
-  - Persists current mode selection
+- **One-Click Mode Switching**: Instantly switch between VR and Monitor modes
+  - Automatically updates Elite Dangerous graphics settings
+  - Switches to the appropriate audio devices
+  - Starts mode-specific tools (VR headset software or head tracking)
 
-- **Tool Management**: Start and stop helper programs
-  - **Common tools**: TrackIR, EDLaunch, AutoHotkey scripts, VoiceAttack, EDDiscovery
-  - **VR mode**: Also starts Oculus runtime and Virtual Desktop Streamer
-  - **Monitor mode**: Terminates VR-specific processes
-  - **Stop Tools**: Terminates Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger
+- **Audio Device Management**:
+  - Quick access to switch between audio outputs and microphones
+  - Automatically switches to the right devices when changing modes
 
-- **System Tray Integration**: Runs quietly in the background with context menu access
-  - Mode indicator shows current mode
-  - Toggle options disabled for current mode
-  - Notification balloon tips for actions
+- **Tool Management**:
+  - Launches Elite Dangerous and supporting tools with one click
+  - Automatically manages VR-specific tools (Virtual Desktop) or Monitor-specific tools (TrackIR)
+  - Smart process detection - won't start tools that are already running
 
-## Requirements
+- **System Tray Integration**:
+  - Runs quietly in the background
+  - Right-click or left-click the tray icon to access the menu
+  - Shows your current mode at a glance
+  - Notification popups confirm your actions
 
-- .NET 8.0 Runtime
-- Windows 10/11 (64-bit)
-- Administrator privileges (required for process management and audio device switching)
+## Installation
 
-## Building
+1. Download the latest `EliteSwitchInstaller-vX.X.X-x64.msi` from the [Releases](https://github.com/yourusername/EliteSwitch/releases) page
+2. Double-click the installer and follow the installation wizard
+3. The application will be installed to `C:\Program Files\EliteSwitch\`
+4. Launch "Elite Switch" from the Start Menu
 
-### Build the Application
+**Note**: Elite Switch requires administrator privileges to manage processes and audio devices. You may see a User Account Control (UAC) prompt when launching.
 
-```bash
-dotnet restore
-dotnet build -c Release
-```
+## System Requirements
 
-### Build the MSI Installer
+- Windows 10 or Windows 11 (64-bit)
+- .NET 8.0 Runtime (the installer will prompt you to download it if needed)
+- Elite Dangerous installed
 
-Requires WiX Toolset v4:
-```bash
-# Install WiX if not already installed
-dotnet tool install --global wix
+## How to Use
 
-# Build the installer
-dotnet build EliteSwitch.Installer/EliteSwitch.Installer.wixproj -c Release
-```
+### First Launch
 
-The installer will be created at: `EliteSwitch.Installer/bin/Release/x64/en-US/EliteSwitchSetup.msi`
+When you first launch Elite Switch, you'll see a new icon in your system tray (notification area). The app has no visible window - everything is accessed through this tray icon.
 
-See `EliteSwitch.Installer/README.md` for detailed installer build instructions.
+### Switching Modes
 
-## Running
+1. **Right-click or left-click** the Elite Switch tray icon
+2. Choose either:
+   - **Switch to VR Mode** - Configures Elite Dangerous for VR headset play
+   - **Switch to Monitor Mode** - Configures Elite Dangerous for monitor play
 
-### Direct Execution
-```bash
-dotnet run
-```
+The app will:
+- Update your Elite Dangerous graphics settings
+- Switch to the appropriate audio devices
+- Stop the previous mode's tools and start the new mode's tools
 
-Or run the compiled executable from `bin/Release/net8.0-windows/EliteSwitch.exe`
+### Starting Elite Dangerous
 
-### Using the Installer
-Double-click `EliteSwitchSetup.msi` and follow the installation wizard. The application will be installed to `C:\Program Files\EliteSwitch\` with a Start Menu shortcut.
+1. Right-click the tray icon
+2. Select **Start Elite Dangerous**
+   - This launches Elite Dangerous along with companion tools (EDLaunch, VoiceAttack, EDDiscovery, etc.)
+   - VR mode also starts Virtual Desktop Streamer
+   - Monitor mode also starts TrackIR (if installed)
+   - Tools already running won't be started again
+
+### Stopping Tools
+
+1. Right-click the tray icon
+2. Select **Stop**
+   - This closes Elite Dangerous and related tools
+
+### Changing Audio Devices
+
+The tray menu includes two submenus for audio:
+
+- **Audio Out**: Select your speakers or headphones
+- **Microphone**: Select your microphone
+
+Available devices are automatically detected from your configuration. The currently selected device is marked with a bullet (●).
+
+### Exiting the Application
+
+1. Right-click the tray icon
+2. Select **Exit**
 
 ## Configuration
 
-Settings are automatically saved to:
-`%APPDATA%\EliteSwitch\settings.json`
+### Customizing Settings
 
-The application modifies Elite Dangerous configuration files at:
-`%LOCALAPPDATA%\Frontier Developments\Elite Dangerous\Options\Graphics\`
+You can customize graphics settings, audio devices, and which tools to launch by editing the configuration file.
 
-## Tool Paths
+1. Right-click the Elite Switch tray icon
+2. Select **Edit Config...**
+3. The configuration file will open in your default JSON editor (usually Notepad)
 
-The following paths are expected for the various tools:
-- TrackIR: `C:\Program Files (x86)\TrackIR5\TrackIR5.exe`
-- EDLaunch: `C:\Program Files (x86)\Frontier\EDLaunch\EDLaunch.exe`
-- AutoHotkey Script: `%USERPROFILE%\dot-files\games\AutoHotKey Scripts\EliteDangerous.ahk`
-- VoiceAttack: `C:\Program Files (x86)\Steam\steamApps\common\VoiceAttack\VoiceAttack.exe`
-- EDDiscovery: `C:\Program Files\EDDiscovery\EDDiscovery.exe`
-- Virtual Desktop Streamer: `C:\Program Files\Virtual Desktop Streamer\VirtualDesktop.Streamer.exe`
-- Oculus Start Script: `%USERPROFILE%\dot-files\games\Oculus\StartOculus.ps1`
+The configuration file is located at: `%USERPROFILE%\dot-files\.eliteswitch.json`
 
-## Setup Instructions
+### Configuration Options
 
-1. **Icon File**: Create or obtain an `icon.ico` file and place it in the project root directory (see `ICON_NOTE.txt` for details)
+**Graphics Settings**: Customize resolution, refresh rate, and quality presets for each mode under the `graphics.vr` and `graphics.monitor` sections.
 
-2. **Restore NuGet Packages**:
-   ```bash
-   dotnet restore
-   ```
+**Audio Devices**: Define which audio devices appear in the menus and which devices to automatically select for each mode under the `audio.audioOut` and `audio.microphone` sections.
 
-3. **Build the Application**:
-   ```bash
-   dotnet build -c Release
-   ```
+**Tool Management**: Specify which programs to launch and stop for each mode:
+- `tools.common`: Tools used in both VR and Monitor modes (Elite Dangerous, VoiceAttack, etc.)
+- `tools.vr`: VR-specific tools (Virtual Desktop Streamer)
+- `tools.monitor`: Monitor-specific tools (TrackIR for head tracking)
 
-4. **Run as Administrator**: Right-click the executable and select "Run as administrator"
+For detailed configuration examples, see the [CLAUDE.md](CLAUDE.md) file.
 
-## Compared to Original Python Script
+### Default Tool Paths
 
-This application replaces the functionality of the `~/dot-files/scripts/elite-switch` Python script:
+Elite Switch expects tools to be installed at these standard locations:
 
-| Feature | Python Script | C# WPF App |
-|---------|--------------|------------|
-| Mode switching | Command-line arguments | System tray context menu |
-| Config management | XML parsing with ElementTree | LINQ to XML |
-| Process management | psutil library | System.Diagnostics.Process |
-| Audio switching | Custom MyAudio module | AudioSwitcher.AudioApi |
-| User interface | Zenity/dialog prompts | Native Windows tray icon |
-| Startup | Manual execution | Can add to Windows startup |
+- **Elite Dangerous**: `C:\Program Files (x86)\Frontier\EDLaunch\EDLaunch.exe`
+- **VoiceAttack**: `C:\Program Files (x86)\Steam\steamApps\common\VoiceAttack\VoiceAttack.exe`
+- **EDDiscovery**: `C:\Program Files\EDDiscovery\EDDiscovery.exe`
+- **Virtual Desktop Streamer**: `C:\Program Files\Virtual Desktop Streamer\VirtualDesktop.Streamer.exe`
+- **TrackIR**: `C:\Program Files (x86)\TrackIR5\TrackIR5.exe`
 
-## Notes
+If your tools are installed elsewhere, you can update the paths in the configuration file.
 
-- The application requires administrator privileges to manage processes and change audio devices
-- Audio device switching requires the "h5" audio device to be available (configurable in code)
-- Settings are automatically saved to `%APPDATA%\EliteSwitch\settings.json`
-- The application runs hidden with only a system tray icon visible
-- Tool paths can be customized in `ProcessManager.cs`
-- Elite Dangerous config files are expected at the standard location: `%LOCALAPPDATA%\Frontier Developments\Elite Dangerous\Options\Graphics\`
+## Troubleshooting
 
-## Future Enhancements
+### The tray icon doesn't appear
+- Make sure the application is running (check Task Manager)
+- Try restarting the application
+- Check if the icon is hidden - click the arrow in the system tray to show hidden icons
 
-Potential improvements for future versions:
-- Settings UI for customizing tool paths and audio device names
-- Automatic startup with Windows option
-- Support for additional game modes
-- Logging of mode switches and errors
-- Hotkey support for quick mode switching
+### Audio devices don't appear in the menu
+- Open the configuration file (Edit Config...) and verify your audio device substrings
+- The substring must match part of your device name (case-insensitive)
+- Restart the application after making configuration changes to audio devices
+
+### Tools aren't starting
+- Verify the tool paths in the configuration file point to the correct locations
+- Check if you have the tools installed
+- Make sure Elite Switch is running with administrator privileges
+
+### Graphics settings aren't changing
+- Ensure Elite Dangerous is closed when switching modes
+- Check that Elite Dangerous is installed in the standard location: `%LOCALAPPDATA%\Frontier Developments\Elite Dangerous\`
+
+### "Access Denied" or permission errors
+- Make sure to run Elite Switch as administrator (it should prompt automatically)
+- Some anti-virus software may block process management - you may need to add an exception
+
+## Getting Help
+
+If you encounter issues:
+1. Check the troubleshooting section above
+2. Review your configuration file for errors (invalid JSON syntax, incorrect paths)
+3. Report issues on the [GitHub Issues](https://github.com/yourusername/EliteSwitch/issues) page
+
+## License
+
+This project is open source. See the LICENSE file for details.

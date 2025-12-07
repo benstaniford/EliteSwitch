@@ -26,13 +26,19 @@ public class ToolsConfig
     public List<string> StopInMonitorMode { get; set; } = new();
 }
 
-public class GraphicsConfig
+public class GraphicsSettings
 {
     [JsonPropertyName("vr")]
     public Dictionary<string, string> VRSettings { get; set; } = new();
 
     [JsonPropertyName("monitor")]
     public Dictionary<string, string> MonitorSettings { get; set; } = new();
+}
+
+public class GraphicsConfig
+{
+    [JsonPropertyName("graphics")]
+    public GraphicsSettings Graphics { get; set; } = new();
 
     [JsonPropertyName("tools")]
     public ToolsConfig Tools { get; set; } = new();
@@ -51,26 +57,29 @@ public class GraphicsConfig
 
         return new GraphicsConfig
         {
-            VRSettings = new Dictionary<string, string>
+            Graphics = new GraphicsSettings
             {
-                { "ScreenWidth", "3840" },
-                { "ScreenHeight", "2160" },
-                { "FullScreen", "0" },
-                { "StereoscopicMode", "4" },
-                { "GammaOffset", "0.240000" },
-                { "DX11_RefreshRateNumerator", "59810" },
-                { "DX11_RefreshRateDenominator", "1000" },
-                { "PresetName", "VRUltra" }
-            },
-            MonitorSettings = new Dictionary<string, string>
-            {
-                { "ScreenWidth", "3840" },
-                { "ScreenHeight", "2160" },
-                { "FullScreen", "2" },
-                { "StereoscopicMode", "0" },
-                { "DX11_RefreshRateNumerator", "120" },
-                { "DX11_RefreshRateDenominator", "1" },
-                { "PresetName", "Ultra" }
+                VRSettings = new Dictionary<string, string>
+                {
+                    { "ScreenWidth", "3840" },
+                    { "ScreenHeight", "2160" },
+                    { "FullScreen", "0" },
+                    { "StereoscopicMode", "4" },
+                    { "GammaOffset", "0.240000" },
+                    { "DX11_RefreshRateNumerator", "59810" },
+                    { "DX11_RefreshRateDenominator", "1000" },
+                    { "PresetName", "VRUltra" }
+                },
+                MonitorSettings = new Dictionary<string, string>
+                {
+                    { "ScreenWidth", "3840" },
+                    { "ScreenHeight", "2160" },
+                    { "FullScreen", "2" },
+                    { "StereoscopicMode", "0" },
+                    { "DX11_RefreshRateNumerator", "120" },
+                    { "DX11_RefreshRateDenominator", "1" },
+                    { "PresetName", "Ultra" }
+                }
             },
             Tools = new ToolsConfig
             {

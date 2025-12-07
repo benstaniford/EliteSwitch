@@ -26,7 +26,7 @@ public class EliteConfigManager
 
     public void ApplyMode(GameMode mode)
     {
-        var settings = mode == GameMode.VR ? _config.VRSettings : _config.MonitorSettings;
+        var settings = mode == GameMode.VR ? _config.Graphics.VRSettings : _config.Graphics.MonitorSettings;
 
         ApplySettingsToFile(_settingsPath, settings);
         ApplySettingsToFile(_displaySettingsPath, settings);

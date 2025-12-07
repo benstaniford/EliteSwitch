@@ -182,6 +182,8 @@ public partial class MainWindow : Window
     {
         try
         {
+            // Reload config in case user edited it
+            _processManager.ReloadConfig();
             _processManager.StartTools(_settings.CurrentMode);
             TrayIcon.ShowNotification("Elite Switch", $"Starting tools for {_settings.CurrentMode} mode");
         }
@@ -195,6 +197,8 @@ public partial class MainWindow : Window
     {
         try
         {
+            // Reload config in case user edited it
+            _processManager.ReloadConfig();
             _processManager.StopTools(_settings.CurrentMode);
             TrayIcon.ShowNotification("Elite Switch", "Stopping tools");
         }
@@ -215,7 +219,7 @@ public partial class MainWindow : Window
             {
                 var defaultConfig = GraphicsConfig.GetDefaultConfig();
                 defaultConfig.Save();
-                TrayIcon.ShowNotification("Elite Switch", "Created default graphics configuration file");
+                TrayIcon.ShowNotification("Elite Switch", "Created default configuration file");
             }
 
             // Open the file with the default JSON editor
@@ -228,7 +232,7 @@ public partial class MainWindow : Window
 
             // Show a notification explaining that the app will reload the config
             TrayIcon.ShowNotification("Elite Switch",
-                "Graphics config opened for editing.\n\nChanges will be applied next time you switch modes.");
+                "Config opened for editing.\n\nChanges will be applied when you next switch modes or start/stop tools.");
         }
         catch (Exception ex)
         {

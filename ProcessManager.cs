@@ -8,35 +8,25 @@ namespace EliteSwitch;
 
 public class ProcessManager
 {
-    private readonly string _home;
-    private readonly string _programFiles;
-    private readonly string _programFilesX86;
-    private readonly string _localAppData;
+    private GraphicsConfig _config;
 
     public ProcessManager()
     {
-        _home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        _programFiles = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
-        _programFilesX86 = Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
-        _localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        _config = GraphicsConfig.Load();
+    }
+
+    public void ReloadConfig()
+    {
+        _config = GraphicsConfig.Load();
     }
 
     public void StopTools(GameMode mode)
     {
-        var killList = new List<string>
-        {
-            "elitedangerous64",
-            "edlaunch",
-            "dropbox",
-            "onedrive",
-            "autohotkey",
-            "steam",
-            "messenger"
-        };
+        var killList = new List<string>(_config.Tools.StopAlways);
 
         if (mode == GameMode.Monitor)
         {
-            killList.Add("virtualdesktop.streamer");
+            killList.AddRange(_config.Tools.StopInMonitorMode);
         }
 
         foreach (var processName in killList)
@@ -68,19 +58,12 @@ public class ProcessManager
 
     public void StartTools(GameMode mode)
     {
-        var startList = new List<string>
-        {
-            Path.Combine(_programFilesX86, "TrackIR5", "TrackIR5.exe"),
-            Path.Combine(_programFilesX86, "Frontier", "EDLaunch", "EDLaunch.exe"),
-            Path.Combine(_home, "dot-files", "games", "AutoHotKey Scripts", "EliteDangerous.ahk"),
-            Path.Combine(_programFilesX86, "Steam", "steamApps", "common", "VoiceAttack", "VoiceAttack.exe"),
-            Path.Combine(_programFiles, "EDDiscovery", "EDDiscovery.exe")
-        };
+        var startList = new List<string>(_config.Tools.CommonTools);
 
         if (mode == GameMode.VR)
         {
-            // Add VR Streamer for VR mode
-            startList.Add(Path.Combine(_programFiles, "Virtual Desktop Streamer", "VirtualDesktop.Streamer.exe"));
+            // Add VR-only tools
+            startList.AddRange(_config.Tools.VROnlyTools);
         }
 
         foreach (var executable in startList)

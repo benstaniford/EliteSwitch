@@ -63,18 +63,25 @@ Two-project solution:
 - Automatically creates JSON config file with default settings when first applying a mode
 
 **GraphicsConfig.cs**
-- JSON-based graphics settings configuration
+- JSON-based configuration for graphics settings and process management
 - Stores separate settings for VR and Monitor modes
 - Located at `%USERPROFILE%\dot-files\.eliteswitch.json`
 - Provides default settings matching the original hardcoded values
-- Supports customization via "Edit Graphics Config..." menu option
+- Supports customization via "Edit Config..." menu option
+- Includes tool configuration:
+  - Common tools (both modes)
+  - VR-only tools
+  - Processes to stop always
+  - Processes to stop in Monitor mode only
 
 **ProcessManager.cs**
-- Handles starting and stopping gaming tools
-- **Common tools** (both modes): TrackIR, EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
-- **VR-specific tools**: Virtual Desktop Streamer
-- **Stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer in Monitor mode)
-- Tool paths are hardcoded using Environment.SpecialFolder for portability
+- Handles starting and stopping gaming tools based on configuration
+- Loads tool lists from `%USERPROFILE%\dot-files\.eliteswitch.json`
+- **Default common tools** (both modes): TrackIR, EDLaunch, AutoHotkey script, VoiceAttack, EDDiscovery
+- **Default VR-specific tools**: Virtual Desktop Streamer
+- **Default stop list**: Elite Dangerous, Steam, Dropbox, OneDrive, AutoHotkey, Messenger (+ VR Streamer in Monitor mode)
+- Tool paths use Environment.SpecialFolder for portability in defaults
+- Reloads configuration before each start/stop operation to pick up user edits
 
 **AudioManager.cs**
 - Uses AudioSwitcher.AudioApi to change default Windows audio devices
@@ -91,8 +98,8 @@ Two-project solution:
 - Context menu with mode switching, tool management, config editing, and exit options
 - Shows balloon notifications for user actions
 - Menu items dynamically enable/disable based on current mode
-- "Edit Graphics Config..." opens the JSON configuration file in the default system editor
-- Automatically reloads configuration before applying mode changes
+- "Edit Config..." opens the JSON configuration file in the default system editor
+- Automatically reloads configuration before applying mode changes or starting/stopping tools
 
 ### Key Design Patterns
 
@@ -123,12 +130,12 @@ The installer (`EliteSwitch.Installer/Product.wxs`) uses WiX Toolset v3.11:
 
 Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.eliteswitch.json`. If this file doesn't exist, the application uses hardcoded defaults and creates the file when you first switch modes.
 
-**To customize graphics settings:**
+**To customize settings:**
 1. Right-click the tray icon
-2. Select "Edit Graphics Config..."
-3. Modify the JSON file with your preferred settings
+2. Select "Edit Config..."
+3. Modify the JSON file with your preferred graphics settings and/or tool lists
 4. Save the file
-5. Next mode switch will use your custom settings
+5. Next mode switch or tool start/stop will use your custom settings
 
 **Default VR Mode Settings:**
 - ScreenWidth/Height: 3840x2160 (maintains desktop resolution)
@@ -166,9 +173,39 @@ Graphics settings are stored in a JSON file at `%USERPROFILE%\dot-files\.elitesw
     "DX11_RefreshRateNumerator": "120",
     "DX11_RefreshRateDenominator": "1",
     "PresetName": "Ultra"
+  },
+  "tools": {
+    "common": [
+      "C:\\Program Files (x86)\\TrackIR5\\TrackIR5.exe",
+      "C:\\Program Files (x86)\\Frontier\\EDLaunch\\EDLaunch.exe",
+      "C:\\Users\\YourName\\dot-files\\games\\AutoHotKey Scripts\\EliteDangerous.ahk",
+      "C:\\Program Files (x86)\\Steam\\steamApps\\common\\VoiceAttack\\VoiceAttack.exe",
+      "C:\\Program Files\\EDDiscovery\\EDDiscovery.exe"
+    ],
+    "vrOnly": [
+      "C:\\Program Files\\Virtual Desktop Streamer\\VirtualDesktop.Streamer.exe"
+    ],
+    "stopAlways": [
+      "elitedangerous64",
+      "edlaunch",
+      "dropbox",
+      "onedrive",
+      "autohotkey",
+      "steam",
+      "messenger"
+    ],
+    "stopInMonitorMode": [
+      "virtualdesktop.streamer"
+    ]
   }
 }
 ```
+
+**Tool Configuration Notes:**
+- `common`: Full paths to executables to start in both VR and Monitor modes
+- `vrOnly`: Full paths to executables to start only in VR mode
+- `stopAlways`: Process names (lowercase, without .exe) to terminate in both modes
+- `stopInMonitorMode`: Process names to terminate only when switching to Monitor mode
 
 ### Tool Paths
 
@@ -208,12 +245,20 @@ The application switches to audio device containing "h5" in the name. To customi
 ## Customization Scenarios
 
 **Adding New Tools:**
-1. Add path to `ProcessManager.cs` `StartTools()` method's `startList`
-2. If tool should only run in specific mode, add conditional check like VR Streamer
-3. If tool should be terminated, add process name (lowercase, without .exe) to `StopTools()` `killList`
+1. Use the "Edit Config..." menu option in the tray icon
+2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
+3. Add tool paths to the appropriate array:
+   - `tools.common` - for tools that run in both modes
+   - `tools.vrOnly` - for VR-specific tools
+   - `tools.stopAlways` - for process names to always terminate
+   - `tools.stopInMonitorMode` - for processes to terminate only in Monitor mode
+4. Save the file
+5. Changes apply on next tool start/stop operation
+
+Alternatively, you can modify the default settings in `GraphicsConfig.cs` `GetDefaultConfig()` method, but editing the JSON file is recommended for user customization.
 
 **Changing Graphics Presets:**
-1. Use the "Edit Graphics Config..." menu option in the tray icon
+1. Use the "Edit Config..." menu option in the tray icon
 2. Edit the `%USERPROFILE%\dot-files\.eliteswitch.json` file
 3. Modify the VR or Monitor settings as needed
 4. Element names must match Elite Dangerous XML structure exactly
